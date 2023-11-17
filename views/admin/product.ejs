@@ -1,0 +1,64 @@
+<%- include('../partials/adminheadder') %>
+
+
+<div class="content-wrapper">
+    <div class="page-header">
+
+        <h2>fgf</h2>
+    </div>
+    <div class="row">
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Products</h4>
+                    <a href="/admin/addproducts"><button style=" border-radius: 10%; background-color: green; border: 0cap;">Add product</button></a>
+                    
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-dark">
+                            <thead>
+                                <tr>
+                                    <th> No </th>
+                                    <th> name </th>
+                                    <th> Image </th>
+                                    <th> catogery </th>
+                                    <th> stock </th>
+                                    <th> price</th>
+                                    <th> status</th>
+                                    <th> action</th>
+                                    <th> edit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <% if (products.length>0) { %>
+                                        <% for (let i = 0; i < products.length; i++) { %>
+                                            <li><%= items[i] %></li>
+                                          <% } %>
+                                           
+                                      <% } else { %>
+                                        
+                                        <tr>
+                                            <td colspan="9" style="text-align: center;">Product not found</td>
+                                        </tr>
+                                      <% } %>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+
+
+</div>
+
+<%- include('../partials/adminfooter') %>
+           

@@ -1,0 +1,230 @@
+<%- include('../partials/adminheadder') %>
+
+    <div class="content-wrapper">
+        <div class="page-header">
+
+            <h2>fgf</h2>
+        </div>
+        <div class="row">
+
+            <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 style="text-align: center;color: azure;">Category</h2>
+                        <!-- bootstrap moddal -->
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#exampleModalCenter">
+                            Add new
+                        </button>
+
+                        <!-- Modal -->
+
+                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div style="background-color: rgb(70, 63, 63);" class="modal-content ">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLongTitle" style="color: aliceblue;">Add
+                                            new category </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="addcategory" method="post">
+                                            <label for="category" style="color: aliceblue;">name</label>
+                                            <br>
+                                            <input type="text" name="newcategory" style="border-radius: 3%;">
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Add</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <h2></h2>
+                        <% if (same) { %>
+                            <p style="color: red;">
+                                <%= same %>
+                            </p>
+                            <% } %>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-dark">
+                                        <thead>
+                                            <tr>
+                                                <th> No </th>
+                                                <th> Category </th>
+                                                <th> status </th>
+                                                <th> action </th>
+                                                <th> update </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (cats.length>0) { %>
+                                                <% for (let i=0; i < cats.length; i++) { %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= i+1 %>
+                                                        </td>
+                                                        <td>
+                                                            <%= cats[i].name %>
+                                                        </td>
+
+
+                                                        <% if (cats[i].blocked===1) { %>
+                                                            <td>
+                                                                <p style="color: red;">blocked</p>
+                                                            </td>
+
+                                                            <% } else { %>
+                                                                <td>
+                                                                    <p style="color: green;">active</p>
+                                                                </td>
+                                                                <% } %>
+
+                                                                    <% if (cats[i].blocked===0) { %>
+                                                                        <td><a href="/admin/blockcat?id=<%= cats[i]._id %>"
+                                                                                class="badge badge-danger">block</a>
+                                                                        </td>
+
+                                                                        <% } else { %>
+                                                                            <td><a href="/admin/blockcat?id=<%= cats[i]._id %>"
+                                                                                    class="badge badge-success">unblock</a>
+                                                                            </td>
+                                                                            <% } %>
+
+                                                                                <td>
+                                                                                    <!-- Button trigger modal -->
+                                                                                    <button type="button"
+                                                                                        class="btn btn-primary"
+                                                                                        data-toggle="modal"
+                                                                                        data-target="#exampleModal">
+                                                                                        Edit
+                                                                                    </button>
+
+                                                                                    <!-- Modal -->
+                                                                                    <div class="modal fade"
+                                                                                        id="exampleModal" tabindex="-1"
+                                                                                        role="dialog"
+                                                                                        aria-labelledby="exampleModalLabel"
+                                                                                        aria-hidden="true">
+                                                                                        <div class="modal-dialog"
+                                                                                            role="document">
+                                                                                            <div class="modal-content "
+                                                                                                style="background-color: rgb(70, 63, 63);">
+                                                                                                <div
+                                                                                                    class="modal-header">
+                                                                                                    <h5 class="modal-title"
+                                                                                                        id="exampleModalLabel">
+                                                                                                        give new name
+                                                                                                    </h5>
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        class="close"
+                                                                                                        data-dismiss="modal"
+                                                                                                        aria-label="Close">
+                                                                                                        <span
+                                                                                                            aria-hidden="true">&times;</span>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                <div class="modal-body ">
+                                                                                                    <form
+                                                                                                        action="/admin/editcat"
+                                                                                                        method="post">
+                                                                                                        <label
+                                                                                                            for="catogery"
+                                                                                                            style="color: white;">Enter
+                                                                                                            new
+                                                                                                            name</label>
+
+                                                                                                        <input
+                                                                                                            type="hidden"
+                                                                                                            name="_id"
+                                                                                                            value="<%= cats[i]._id %>">
+                                                                                                        <input
+                                                                                                            type="text"
+                                                                                                            name="newname"
+                                                                                                            style="height: 30px; border-radius: 10;">
+                                                                                                        <br>
+                                                                                                        <h1></h1>
+                                                                                                        <button 
+                                                                                                            type="submit"
+                                                                                                            class="btn btn-primary">Submit</button>
+
+                                                                                                    </form>
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+
+                                                                                </td>
+
+                                                    </tr>
+
+                                                    <% } %>
+
+                                                        <% } else { %>
+
+                                                            <tr>
+                                                                <td colspan="5" style="text-align: center;">users not
+                                                                    found</td>
+                                                            </tr>
+                                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+        </div>
+
+
+    </div>
+    <script>
+        function submitForm() {
+            // Get the category name from the input
+            const categoryName = document.getElementById('categoryName').value;
+
+            // Perform any client-side validation if needed
+
+            // Simulate server-side check for existing category (replace with actual logic)
+            const isCategoryExists = checkIfCategoryExists(categoryName);
+
+            if (isCategoryExists) {
+                // Display error message
+                document.getElementById('error-message').innerText = 'Category already exists.';
+            } else {
+                // Reset error message
+                document.getElementById('error-message').innerText = '';
+
+                // Close the modal (optional)
+                $('#exampleModalCenter').modal('hide');
+
+                // Perform other actions (e.g., submit the form)
+                // You may want to use AJAX for asynchronous submission
+                document.getElementById('categoryForm').submit();
+            }
+        }
+
+        function checkIfCategoryExists(categoryName) {
+            // Replace this with your actual logic to check if the category already exists
+            // You may need to make an AJAX request to your server to perform this check
+            // For demonstration purposes, we'll assume the category always exists
+            return true;
+        }
+    </script>
+
+
+    <%- include('../partials/adminfooter') %>
