@@ -7,11 +7,14 @@ const expressLayouts = require('express-ejs-layouts');
 const mongoose = require('./config/db'); // Require the database configuration
 const session= require('express-session')
 const config=require('./config/config')
+const nocache = require('nocache');
 
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+app.use(nocache());
 
 
 app.use(session({  
@@ -20,9 +23,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    maxAge: 600000 // 1 min
+    maxAge: 6000000 // 1 min
   } 
 }));
+
+
 
 
 // view engine setup

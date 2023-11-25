@@ -29,7 +29,9 @@
                     <label class="form-label" for="form2Example27">Password</label>
                     <input type="password" class="form-control form-control-lg" name="password" required />
                   </div>
-                  
+                  <% if (notmatchpass) { %>
+                    <p style="color: red;">password and username dose not match</p>
+                  <% } %>
 
                   <div class="pt-1 mb-4">
                     <button class="btn btn-dark btn-lg btn-block" type="submit">Login</button>

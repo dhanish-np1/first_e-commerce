@@ -31,19 +31,42 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
                                     <% if (products.length>0) { %>
                                         <% for (let i = 0; i < products.length; i++) { %>
-                                            <li><%= items[i] %></li>
+                                            <tr>
+                                                <td><%= i+1 %></td>
+                                                <td><%=products[i].name%></td>
+                                                <td><img src="/products/crop/<%=products[i].images.image1%>" alt=""></td>
+                                                <td><%=products[i].category%></td>
+                                                <td><%=products[i].quantity%></td>
+                                                <td><%=products[i].price%></td>
+                                                <td>
+                                                    <% if (products[i].blocked === 0) { %>
+                                                       <p style="color: green;">active</p>
+                                                      <% } else { %>
+                                                        <p style="color: red;">blocked</p>
+                                                      <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (products[i].blocked === 0) { %>
+                                                        <a href="/admin/blockproduct?id=<%= products[i]._id %>"
+                                                            class="badge badge-danger">block</a>
+                                                      <% } else { %>
+                                                        <a href="/admin/unblockproduct?id=<%= products[i]._id %>"
+                                                            class="badge badge-success">unblock</a>
+                                                      <% } %>
+                                                </td>
+                                                <td><a href="/admin/loadeditproduct?id=<%= products[i]._id %>"
+                                                    class="badge badge-primary">edit</a></td>
+                                            </tr>
                                           <% } %>
-                                           
+                                        
                                       <% } else { %>
                                         
                                         <tr>
                                             <td colspan="9" style="text-align: center;">Product not found</td>
                                         </tr>
                                       <% } %>
-                                </tr>
                             </tbody>
                         </table>
                     </div>

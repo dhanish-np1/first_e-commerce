@@ -59,6 +59,7 @@ const adminlogin=async(req,res)=>{
         if(userdata){
             const passwordmatch=await bcrypt.compare(password,userdata.password)
             if(passwordmatch){
+                req.session.admin_id=userdata._id;
                 res.render('admin/dashboard',{lay:false})
             }else{
                 const unequal="Email and password is not match"
@@ -107,8 +108,8 @@ const addcategory = async (req, res) => {
 const blockcat=async(req,res)=>{
     try {
         const categoryId = req.query.id;
-        const cato=await category.findOne({_id:categoryId})
-        if (cato.blocked == 0) {
+        const catogorys=await category.findOne({_id:categoryId})
+        if (catogorys.blocked == 0) {
             await category.updateOne({ _id: req.query.id }, { $set: { blocked: 1 } });
             res.redirect('/admin/catogery')
           } else {
@@ -163,6 +164,19 @@ const blockuser=async(req,res)=>{
 }
 
 
+//==============================ADMIN LOGOUT=====================================
+
+const adminLogout = async (req, res) => {
+    try {
+      req.session.admin_id = false;
+      res.redirect("/admin");
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+
 
 
 
@@ -181,6 +195,7 @@ module.exports={
     blockcat,
     editcat,
     blockuser,
+    adminLogout,
     
 
     
