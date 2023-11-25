@@ -16,15 +16,15 @@
                     <ul class="main-menu">
                        
                         <li>
-                            <a href="blog.html">home</a>
+                            <a href="/">home</a>
                         </li>
 
 
-                        <li class="active-menu">
-                            <a href="product.html">Shop</a>
+                        <li>
+                            <a href="/shop">Shop</a>
                         </li>
 
-                        <li class="label1" data-label1="hot">
+                        <li >
                             <a href="shoping-cart.html">Features</a>
                         </li>
 
@@ -57,9 +57,17 @@
                         data-notify="0">
                         <i class="zmdi zmdi-favorite-outline"></i>
                     </a>
-                    <form action="/logout" method="post">
-                        <button type="submit" class="btn btn-danger">Logout</button>
-                      </form>
+                    <% if (name) { %>
+                        <!-- Content for logged-in user -->
+                        <div>
+                            <a style="color: rgb(48, 104, 173);" href="/logout">Logout</a>
+                        </div>
+                    <% } else { %>
+                        <div>
+                           
+                            <a style="color: rgb(43, 152, 203);" href="/login">Login</a>
+                        </div>
+                    <% } %>
                       
                     
                 </div>
