@@ -8,6 +8,7 @@ const mongoose = require('./config/db'); // Require the database configuration
 const session= require('express-session')
 const config=require('./config/config')
 const nocache = require('nocache');
+const cors = require('cors');
 
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
@@ -15,7 +16,7 @@ var usersRouter = require('./routes/users');
 var app = express();
 
 app.use(nocache());
-
+app.use(cors());
 
 app.use(session({  
   name: `daffyduck`,
@@ -38,7 +39,7 @@ app.set('layout', 'layout/layout'); // Default layout file
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

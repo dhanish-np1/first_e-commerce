@@ -1,42 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Email Verification</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
     <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="text-center">Email Verification</h2>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-center">Please enter the OTP sent to your email address to verify your account.</p>
-                        <form action="/varify" method="post">
-                           
-                            <div class="form-group">
-                                <label for="otp">OTP:</label>
-                                <input type="text" id="otp" name="otp" class="form-control" required>
-                            </div>
-                            <% if (errorMessage) { %>
-                                <p style="color: red;"><%= errorMessage %></p>
-                            <% } %>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Verify OTP</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-sm-12">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="text-center">Email Verification</h2>
             </div>
+            <div class="card-body">
+              <p class="text-center">
+                Please enter the OTP sent to your email address to verify your
+                account.
+              </p>
+              <form id="otp">
+                <div class="form-group">
+                  <label for="otp">OTP:</label>
+                  <input
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div id="error-message" style="color: red"></div>
+                <button id="resendButton" onclick="resendOTP()" disabled>
+                  Resend OTP
+                </button>
+                <div class="text-center">
+                  <button
+                    type="button"
+                    onclick="submitForm()"
+                    class="btn btn-primary"
+                  >
+                    Verify OTP
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
+    <script>
+      const countdownDuration = 60;
+      let countdownStartTime = localStorage.getItem("countdownStartTime") || 0;
+      let countdownInterval;
+
+      function startCountdown() {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const elapsedTime = currentTime - countdownStartTime;
+
+        if (elapsedTime < countdownDuration) {
+          countdown = countdownDuration - elapsedTime;
+        } else {
+          countdown = 0;
+        }
+
+        updateButtonState();
+        countdownInterval = setInterval(updateButtonState, 1000);
+      }
+
+      function updateButtonState() {
+        if (countdown > 0) {
+          document.getElementById(
+            "resendButton"
+          ).innerHTML = `Resend OTP (${countdown}s)`;
+          countdown--;
+        } else {
+          clearInterval(countdownInterval);
+          document.getElementById("resendButton").innerHTML = "Resend OTP";
+          document.getElementById("resendButton").disabled = false;
+        }
+      }
+
+      function resendOTP() {
+        fetch("/resendotp", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            
+          },
+          
+          body: JSON.stringify({}),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            
+            console.log(data);
+          })
+          .catch((error) => {
+            // Handle any errors that occurred during the fetch
+            console.error("Error:", error);
+          });
+        countdownStartTime = Math.floor(Date.now() / 1000);
+        localStorage.setItem("countdownStartTime", countdownStartTime);
+
+        startCountdown();
+
+        // Disable the button to prevent multiple clicks
+        document.getElementById("resendButton").disabled = true;
+      }
+
+      // Start the countdown when the page loads
+      startCountdown();
+    </script>
+    <script>
+      function submitForm() {
+        const formData = new FormData(document.getElementById("otp"));
+        const urlSearchParams = new URLSearchParams(formData);
+
+        fetch("/varify", {
+          method: "POST",
+          body: urlSearchParams,
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.log(response.status);
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+            if (data.success) {
+              window.location.href = "/home";
+            } else {
+              document.getElementById("error-message").innerHTML =
+                data.errorMessage;
+            }
+          })
+
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+  </body>
 </html>

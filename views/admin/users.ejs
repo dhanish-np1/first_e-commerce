@@ -1,94 +1,105 @@
 <%- include('../partials/adminheadder') %>
 
+<!-- partial -->
 
+<div class="content-wrapper">
+  <div class="page-header">
+    <h2>fgf</h2>
+  </div>
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Users Table</h4>
+          <div class="table-responsive">
+            <table class="table table-striped table-dark">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>name</th>
+                  <th>number</th>
+                  <th>Email</th>
+                  <th>status</th>
+                  <th>block</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (users.length>0) { %> <% for (var i=0; i < users.length;
+                i++) { var user=users[i]; %>
+                <tr>
+                  <td>
+                    <img
+                      src="/user/images/istockphoto-1337144146-1024x1024.jpg"
+                      alt=""
+                    />
+                  </td>
+                  <td><%= user.fullname %></td>
+                  <td><%= user.number %></td>
+                  <td><%= user.email %></td>
 
+                  <% if (user.is_block===0) { %>
+                  <td>
+                    <p style="color: green">active</p>
+                  </td>
+                  <% } else { %>
+                  <td>
+                    <p style="color: red">blocked</p>
+                  </td>
+                  <% } %>
+                  <td>
+                    <% if (user.is_block === 0) { %>
+                        <button onclick="blockUser(<%- JSON.stringify(user) %>, <%= user._id %>);" class="btn btn-danger">Block</button>
+                    <% } else { %>
+                        <button onclick="unblockUser(<%= user._id %>);" class="btn btn-success">Unblock</button>
+                    <% } %>
+                </td>
+                </tr>
+                <% } %> <% } else { %>
 
-    <!-- partial -->
-
-    <div class="content-wrapper">
-        <div class="page-header">
-
-            <h2>fgf</h2>
+                <tr>
+                  <td colspan="5" style="text-align: center">
+                    users not found
+                  </td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="row">
-
-            <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Users Table</h4>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-dark">
-                                <thead>
-                                    <tr>
-                                        <th> User </th>
-                                        <th> name</th>
-                                        <th> number </th>
-                                        <th> Email</th>
-                                        <th> status </th>
-                                        <th> block </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% if (users.length>0) { %>
-                                        <% for (var i=0; i < users.length; i++) { var user=users[i]; %>
-                                            <tr>
-                                                <td><img src="/user/images/istockphoto-1337144146-1024x1024.jpg" alt="">
-                                                </td>
-                                                <td>
-                                                    <%= user.fullname %>
-                                                </td>
-                                                <td>
-                                                    <%= user.number %>
-                                                </td>
-                                                <td>
-                                                    <%= user.email %>
-                                                </td>
-
-                                                <% if (user.is_block===0) { %>
-                                                    <td>
-                                                        <p style="color: green;">active</p>
-                                                    </td>
-                                                    <% } else { %>
-                                                        <td>
-                                                            <p style="color: red;">blocked</p>
-                                                        </td>
-                                                        <% } %>
-                                                            <% if (user.blocked!==0) { %>
-                                                                <td><a href="/admin/blockuser?id=<%= users[i]._id %>"
-                                                                        class="badge badge-danger">block</a>
-                                                                </td>
-
-                                                                <% } else { %>
-                                                                    <td><a href="/admin/blockuser?id=<%= users[i]._id %>"
-                                                                            class="badge badge-success">unblock</a>
-                                                                    </td>
-                                                                    <% } %>
-
-                                            </tr>
-                                            <% } %>
-                                                <% } else { %>
-
-                                                    <tr>
-                                                        <td colspan="5" style="text-align: center;">users not found</td>
-                                                    </tr>
-                                                    <% } %>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-
-
-
-        </div>
-
-
+      </div>
     </div>
+  </div>
+</div>
 
+<script>
+  function blockUser(user, userId) {
+    
+    event.preventDefault();
+    console.log('buten cliked')
 
+    const url = "/your/block/user/endpoint";
+    const data = { userId: userId };
 
-    <%- include('../partials/adminfooter') %>
+    fetch(url, {
+      method: "POST", // or 'GET' depending on your server logic
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.isBlocked) {
+          document.getElementById("blockForm" + userId).innerHTML =
+            '<button type="submit" class="btn btn-success">Unblock</button>';
+        } else {
+          document.getElementById("blockForm" + userId).innerHTML =
+            '<button type="submit" class="btn btn-danger">Block</button>';
+        }
+      })
+      .catch((error) => {
+        console.error("Error blocking/unblocking user:", error);
+      });
+  }
+</script>
+<%- include('../partials/adminfooter') %>
