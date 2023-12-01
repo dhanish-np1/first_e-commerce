@@ -4,7 +4,7 @@ const isLogin = async(req,res,next)=>{
             next()
         }else{
           
-            res.render('admin/adminlogin',{lay:false,noteq:""})
+            res.render('login')
         }
         
     } catch (error) {

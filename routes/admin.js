@@ -6,7 +6,7 @@ const multer= require("../middlewares/multer")
 const isAuth=require('../middlewares/adminAuth')
 
 
-adminRouter.get('/',isAuth.isLogin,admincontroller.loadadmin)
+adminRouter.get('/',admincontroller.loadadmin)
 adminRouter.get('/products',productcontroller.loadproducts)
 adminRouter.get('/catogery',admincontroller.loadcatogery)
 adminRouter.get('/users',admincontroller.loadusers)
@@ -21,7 +21,7 @@ adminRouter.get('/blockuser',admincontroller.blockuser)
 adminRouter.get('/blockproduct',productcontroller.blockproduct)
 adminRouter.get('/unblockproduct',productcontroller.unblockproduct)
 adminRouter.get('/loadeditproduct',productcontroller.loadeditproduct)
-adminRouter.get('/editproduct',productcontroller.editproduct)
+adminRouter.post('/editproduct',multer.productImagesUpload,productcontroller.editproduct)
 adminRouter.get('/logout',admincontroller.adminLogout)
 
 
