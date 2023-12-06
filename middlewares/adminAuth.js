@@ -4,7 +4,7 @@ const isLogin = async(req,res,next)=>{
             next()
         }else{
           
-            res.render('login')
+            res.render('admin/adminlogin',{lay:false,noteq:''})
         }
         
     } catch (error) {
@@ -15,7 +15,7 @@ const isLogin = async(req,res,next)=>{
 const isLogout = async(req,res,next)=>{
     try {
         if(req.session.admin_id){
-            res.redirect('/admin/home')
+            res.redirect('/admin/dashboard')
         }else{
             next()
         }

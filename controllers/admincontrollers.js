@@ -4,7 +4,7 @@ const { render } = require("ejs");
 const bcrypt = require("bcrypt");
 const category = require("../models/catogerymodel");
 
-const loadadmin = async (req, res) => {
+const loadAdmin = async (req, res) => {
   try {
     res.render("admin/adminlogin", { lay: false, noteq: "" });
   } catch (error) {
@@ -12,7 +12,7 @@ const loadadmin = async (req, res) => {
   }
 };
 
-const loadcatogery = async (req, res) => {
+const loadCatogery = async (req, res) => {
   try {
     const categories = await category.find();
     res.render("admin/category", { lay: false, cats: categories, same: "" });
@@ -21,7 +21,7 @@ const loadcatogery = async (req, res) => {
   }
 };
 
-const loadusers = async (req, res) => {
+const loadUsers = async (req, res) => {
   try {
     const userdata = await user.find();
     res.render("admin/users", { lay: false, users: userdata });
@@ -30,7 +30,7 @@ const loadusers = async (req, res) => {
   }
 };
 
-const loaddashboard = async (req, res) => {
+const loadDashBoard = async (req, res) => {
   try {
     res.render("admin/dashboard", { lay: false });
   } catch (error) {
@@ -38,7 +38,7 @@ const loaddashboard = async (req, res) => {
   }
 };
 
-const adminlogin = async (req, res) => {
+const adminLogin = async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
@@ -47,8 +47,9 @@ const adminlogin = async (req, res) => {
     if (userdata) {
       const passwordmatch = await bcrypt.compare(password, userdata.password);
       if (passwordmatch) {
-        req.session.admin_id = userdata._id;
+        req.session.admin_id=userdata._id;;
         res.render("admin/dashboard", { lay: false });
+        
       } else {
         const unequal = "Email and password is not match";
         res.render("admin/adminlogin", { lay: false, noteq: unequal });
@@ -61,26 +62,32 @@ const adminlogin = async (req, res) => {
     console.log(error.massage);
   }
 };
-const addcategory = async (req, res) => {
+const addCategory = async (req, res) => {
   try {
+    console.log("add category")
     const cat = req.body.newcategory;
-
-    // Use findOne to check if the category already exists
-    const existingCategory = await category.findOne({ name: cat });
-
-    if (existingCategory) {
-      const categories = await category.find();
-      const err = "This category name already exists. Please try another one.";
-      res.render("admin/category", { lay: false, same: err, cats: categories });
-    } else {
-      const newCategory = new category({
-        name: cat,
+    const existingCategory = await category.findOne({ name: { $regex: new RegExp('^' + cat + '$', 'i') } });
+    if(cat.trim()==""){
+      return res.json({
+        success: false,
+        errorMessage: "please enter a name",
       });
-
-      await newCategory.save();
-
-      const categories = await category.find();
-      res.render("admin/category", { lay: false, same: "", cats: categories });
+    }else{
+      if (existingCategory) {
+        return res.json({
+          success: false,
+          errorMessage: "this catogory is already exist",
+        });
+      } else {
+        const newCategory = new category({
+          name: cat,
+        });
+        
+        await newCategory.save();
+        return res.json({
+          success: true,
+        });
+      }
     }
   } catch (error) {
     console.log(error);
@@ -88,52 +95,106 @@ const addcategory = async (req, res) => {
   }
 };
 
-const blockcat = async (req, res) => {
+const blockCat = async (req, res) => {
   try {
-    const categoryId = req.query.id;
+    const categoryId = req.body.userId;
     const catogorys = await category.findOne({ _id: categoryId });
     if (catogorys.blocked == 0) {
-      await category.updateOne({ _id: req.query.id }, { $set: { blocked: 1 } });
-      res.redirect("/admin/catogery");
+      await category.updateOne(
+        { _id: req.body.userId },
+        { $set: { blocked: 1 } }
+      );
+      console.log("catogery blocked");
+      return res.json({
+        blocked: true,
+        success: true,
+        statustext: "blocked",
+        textcolor: "red",
+        btntext: "unblock",
+        btncolor: "green",
+      });
     } else {
-      await category.updateOne({ _id: req.query.id }, { $set: { blocked: 0 } });
-      res.redirect("/admin/catogery");
+      await category.updateOne(
+        { _id: req.body.userId },
+        { $set: { blocked: 0 } }
+      );
+      console.log("catogery unblocked");
+      return res.json({
+        blocked: true,
+        success: true,
+        statustext: "active",
+        textcolor: "green",
+        btntext: "block",
+        btncolor: "red",
+      });
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-const editcat = async (req, res) => {
+const editCat = async (req, res) => {
   try {
+    
     const categoryId = req.body._id;
     const name = req.body.newname;
+    if(name.trim()==""){
+      return res.json({
+        success: false,
+        errorMessage: "please enter a name",
+      });
+      
+    }else{
+      const existingCategory = await category.findOne({ name: { $regex: new RegExp('^' + name + '$', 'i') } });
+      if (existingCategory) {
+        return res.json({
+          success: false,
+          errorMessage: "this catogory is already exist",
+        });
+      } else {
+         await category.updateOne(
+            { _id: categoryId },
+            { $set: { name: name } }
+          );
+        return res.json({
+          success: true,
+        });
+      }
+    }
 
-    // Use findOneAndUpdate for atomic updates
-    const updatedCategory = await category.findOneAndUpdate(
-      { _id: categoryId },
-      { $set: { name: name } },
-      { new: true } // Return the updated document
-    );
-    res.redirect("/admin/catogery");
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
 
-const blockuser = async (req, res) => {
+const blockUser = async (req, res) => {
   try {
-    console.log("user blocked or un blocked")
-    const userId = req.query.id;
+    const userId = req.body.userId;
     const User = await user.findOne({ _id: userId });
     if (User.is_block === 0) {
-      req.session=false;
-      await user.updateOne({ _id: req.query.id }, { $set: { is_block: 1 } });
-      res.redirect("/admin/users");
+      req.session = false;
+      await user.updateOne({ _id: userId }, { $set: { is_block: 1 } });
+      console.log("user blocked");
+      return res.json({
+        blocked: true,
+        success: true,
+        statustext: "blocked",
+        textcolor: "red",
+        btntext: "unblock",
+        btncolor: "green",
+      });
     } else {
-      await user.updateOne({ _id: req.query.id }, { $set: { is_block: 0 } });
-      res.redirect("/admin/users");
+      await user.updateOne({ _id: userId }, { $set: { is_block: 0 } });
+      console.log("user unblocked");
+      return res.json({
+        blocked: false,
+        success: true,
+        statustext: "active",
+        textcolor: "green",
+        btntext: "block",
+        btncolor: "red",
+      });
     }
   } catch (error) {
     console.log(error);
@@ -153,36 +214,14 @@ const adminLogout = async (req, res) => {
 };
 
 module.exports = {
-  loadadmin,
-  loadcatogery,
-  loadusers,
-  loaddashboard,
-  adminlogin,
-  addcategory,
-  blockcat,
-  editcat,
-  blockuser,
+  loadAdmin,
+  loadCatogery,
+  loadUsers,
+  loadDashBoard,
+  adminLogin,
+  addCategory,
+  blockCat,
+  editCat,
+  blockUser,
   adminLogout,
 };
-
-// const insertadmin = async (req, res) => {
-//     const spassword = await securepassword(req.body.password);
-//     try {
-//       // Assuming you have a model named 'Admin'
-//       const Admin = new admin({
-//         name: req.body.name,
-//         email: req.body.email,
-//         password: spassword,
-//         is_admin: 0,
-//       });
-
-//       // Save the user to the database
-//       const savedUser = await Admin.save(); // Use 'adminUser' instead of 'User'
-//       console.log('User inserted successfully:', savedUser);
-
-//       res.status(200).json({ message: 'User inserted successfully', user: savedUser });
-//     } catch (error) {
-//       console.error('Error inserting user:', error);
-//       res.status(500).json({ error: error.message });
-//     }
-//   };
