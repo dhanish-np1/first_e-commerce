@@ -23,7 +23,9 @@
                     <div class="card-body">
                         <h4 class="card-title">Update Product</h4>
                         <p class="card-description">Details</p>
-                        <form class="forms-sample" id="editProdect" enctype="multipart/form-data">
+                        <p id="error-message" style="color: red;"></p>
+                        <form class="forms-sample" id="editProdect">
+                            <input type="hidden" id="yourIdHere" name="_id" value="<%= products._id%>">
                             <div class="form-group">
                                 <label for="exampleInputName1">Product Name</label>
                                 <input type="text" class="form-control" id="name" name="name"
@@ -146,7 +148,7 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <button type="button" onclick="submitForm()" class="btn btn-primary mr-2">Submit</button>
                             <button type="button" class="btn btn-danger" id="cancelButton">Cancel
                             </button>
@@ -167,27 +169,32 @@
 
 
         function submitForm() {
-            const form = document.getElementById('editProdect');
-            const formData = new FormData(form);
-            console.log(formData)
-            for (const entry of formData.entries()) {
-        console.log('Form Data Entry:', entry);
-    }
-
-            fetch('/admin/editproduct', {
-                method: 'POST',
-                body:formData,
-
+            const formData = new FormData(document.getElementById("editProdect"));
+            
+            console.log("fetch is workign")
+            fetch("/admin/editproduct", {
+                method: "POST",
+                body: formData,
             })
-                .then(response => response.json())
-                .then(data => {
-
+                .then((response) => {
+                    if (!response.ok) {
+                        console.log(response.status)
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
                 })
-                .catch(error => {
-                    console.error('Error uploading image:', error);
+                .then((data) => {
+                    console.log(data)
+                    if (data.success) {
+                        window.location.href = data.redirectTo;
+                    } else {
+                        document.getElementById("error-message").innerHTML = data.errorMessage;
+                    }
+                })
+                .catch((error) => {
+                    console.log(error)
                 });
         }
-
 
 
         function updateImagePreview(

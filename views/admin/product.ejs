@@ -42,20 +42,22 @@
                                                 <td><%=products[i].price%></td>
                                                 <td>
                                                     <% if (products[i].blocked === 0) { %>
-                                                       <p style="color: green;">active</p>
+                                                        <p id="status<%=products[i]._id%>" style="color: green">active</p>
                                                       <% } else { %>
-                                                        <p style="color: red;">blocked</p>
+                                                        <p id="status<%=products[i]._id%>" style="color: red">blocked</p>
                                                       <% } %>
                                                 </td>
-                                                <td>
+                                                
                                                     <% if (products[i].blocked === 0) { %>
-                                                        <a href="/admin/blockproduct?id=<%= products[i]._id %>"
-                                                            class="badge badge-danger">block</a>
-                                                      <% } else { %>
-                                                        <a href="/admin/unblockproduct?id=<%= products[i]._id %>"
-                                                            class="badge badge-success">unblock</a>
+                                                        <td>
+                                                            <button style="background-color: red;" type="button" id="block<%=products[i]._id%>"  onclick="blockProduct('<%=products[i]._id%>')" class="btn btn-danger">Block</button>
+                                                          </td>
+                                                          <% } else { %>
+                                                          <td>
+                                                            <button style="background-color: green;" type="button" id="block<%=products[i]._id%>" onclick="blockProduct('<%=products[i]._id%>')" class="btn btn-success">unblock</button>
+                                                          </td>
                                                       <% } %>
-                                                </td>
+                                                
                                                 <td><a href="/admin/loadeditproduct?id=<%= products[i]._id %>"
                                                     class="badge badge-primary">edit</a></td>
                                             </tr>
@@ -82,6 +84,45 @@
 
 
 </div>
+
+<script>
+    function blockProduct(userId) {
+    const statusCell = document.getElementById(`status${userId}`);
+    const btn = document.getElementById(`block${userId}`);
+    fetch(`/admin/blockproduct`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to block user with ID ${userId}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+      if(data.blocked){
+        statusCell.innerHTML=data.statustext;
+        statusCell.style.color = data.textcolor;
+        btn.innerHTML=data.btntext;
+        btn.style.backgroundColor=data.btncolor;
+        btn.style.border=0;
+      }else{
+        statusCell.innerHTML=data.statustext;
+        statusCell.style.color = data.textcolor;
+        btn.innerHTML=data.btntext;
+        btn.style.backgroundColor=data.btncolor;
+      }
+       
+    })
+      
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+</script>
 
 <%- include('../partials/adminfooter') %>
            

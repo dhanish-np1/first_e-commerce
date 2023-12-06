@@ -17,7 +17,7 @@ function otpExpirationTimer() {
 
 
 // =====================loadshop==================
-const loadshop = async (req, res) => {
+const loadShop = async (req, res) => {
   try {
     const products = await product.find();
     res.render("user/product", {
@@ -33,7 +33,7 @@ const loadshop = async (req, res) => {
 
 // =====================password hashing==================
 
-const securepassword = async (password) => {
+const securePassword = async (password) => {
   try {
     const passwordhash = await bcrypt.hash(password, 10);
     return passwordhash;
@@ -42,8 +42,8 @@ const securepassword = async (password) => {
   }
 };
 
-// =====================loadsign_up==================
-const loadsign_up = async (req, res) => {
+// =====================loadSign_up==================
+const loadSign_up = async (req, res) => {
   try {
     const message = req.session.errorMessage;
     req.session.errorMessage = "";
@@ -58,7 +58,7 @@ const generateOTP = async () => {
   return Math.floor(100000 + Math.random() * 900000);
 };
 
-const insertuser = async (req, res) => {
+const insertUser = async (req, res) => {
   try {
     console.log("hey");
     const email = req.body.email;
@@ -136,7 +136,7 @@ const insertuser = async (req, res) => {
                     errorMessage: "this email is already exist",
                   });
                 } else {
-                  const spassword = await securepassword(req.body.password);
+                  const spassword = await securePassword(req.body.password);
                   const User = new user({
                     fullname: req.body.name,
                     email: req.body.email,
@@ -183,7 +183,7 @@ const insertuser = async (req, res) => {
 
 // =====================loadhome==================
 
-const loadhome = async (req, res) => {
+const loadHome = async (req, res) => {
   try {
     const products = await product.find({ blocked: 0 });
     const log = req.session.user_id;
@@ -209,7 +209,7 @@ const loadLogin = async (req, res) => {
 };
 // =====================loadotp==================
 
-const loadvarify = async (req, res) => {
+const loadVarify = async (req, res) => {
   try {
     res.render("user/otp", { lay: false });
   } catch (error) {
@@ -270,7 +270,7 @@ const login = async (req, res) => {
           const productes = await product.find({ blocked: 0 });
           req.session.user_id=userdata._id
           req.session.name = userdata.fullname;
-          res.json({
+          return res.json({
             success: true,
             redirectTo:"/home",
             productes,
@@ -294,7 +294,7 @@ const login = async (req, res) => {
   }
 };
 
-const otpvarify = async (req, res) => {
+const otpVarify = async (req, res) => {
   try {
     const enterdotp = parseInt(req.body.otp);
     const userId = req.session.userId;
@@ -353,15 +353,15 @@ const resendOtp = async (req, res) => {
 };
 
 module.exports = {
-  loadsign_up,
-  insertuser,
-  loadhome,
+  loadSign_up,
+  insertUser,
+  loadHome,
   loadLogin,
-  loadvarify,
+  loadVarify,
   login,
-  securepassword,
-  otpvarify,
-  loadshop,
+  securePassword,
+  otpVarify,
+  loadShop,
   userLogout,
   resendOtp,
 };

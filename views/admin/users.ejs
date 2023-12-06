@@ -36,23 +36,24 @@
                   <td><%= user.fullname %></td>
                   <td><%= user.number %></td>
                   <td><%= user.email %></td>
-
                   <% if (user.is_block===0) { %>
-                  <td>
-                    <p style="color: green">active</p>
-                  </td>
-                  <% } else { %>
-                  <td>
-                    <p style="color: red">blocked</p>
-                  </td>
-                  <% } %>
-                  <td>
-                    <% if (user.is_block === 0) { %>
-                        <button onclick="blockUser(<%- JSON.stringify(user) %>, <%= user._id %>);" class="btn btn-danger">Block</button>
+                    <td>
+                      <p id="status<%=user._id%>" style="color: green">active</p>
+                    </td>
                     <% } else { %>
-                        <button onclick="unblockUser(<%= user._id %>);" class="btn btn-success">Unblock</button>
+                    <td>
+                      <p id="status<%=user._id%>" style="color: red">blocked</p>
+                    </td>
                     <% } %>
-                </td>
+                    <% if (user.is_block===0) { %>
+                      <td>
+                        <button type="button" id="block<%=user._id%>"  onclick="blockUser('<%=user._id%>')" class="btn btn-danger">Block</button>
+                      </td>
+                      <% } else { %>
+                      <td>
+                        <button type="button" id="block<%=user._id%>" onclick="blockUser('<%=user._id%>')" class="btn btn-success">unblock</button>
+                      </td>
+                      <% } %>
                 </tr>
                 <% } %> <% } else { %>
 
@@ -72,34 +73,42 @@
 </div>
 
 <script>
-  function blockUser(user, userId) {
-    
-    event.preventDefault();
-    console.log('buten cliked')
-
-    const url = "/your/block/user/endpoint";
-    const data = { userId: userId };
-
-    fetch(url, {
-      method: "POST", // or 'GET' depending on your server logic
+  function blockUser(userId) {
+    const statusCell = document.getElementById(`status${userId}`);
+    const btn = document.getElementById(`block${userId}`);
+    fetch(`/admin/blockuser`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ userId }),
     })
-      .then((response) => response.json())
       .then((response) => {
-        if (response.isBlocked) {
-          document.getElementById("blockForm" + userId).innerHTML =
-            '<button type="submit" class="btn btn-success">Unblock</button>';
-        } else {
-          document.getElementById("blockForm" + userId).innerHTML =
-            '<button type="submit" class="btn btn-danger">Block</button>';
+        if (!response.ok) {
+          throw new Error(`Failed to block user with ID ${userId}`);
         }
+        return response.json();
       })
+      .then((data) => {
+      if(data.blocked){
+        statusCell.innerHTML=data.statustext;
+        statusCell.style.color = data.textcolor;
+        btn.innerHTML=data.btntext;
+        btn.style.backgroundColor=data.btncolor;
+        btn.style.border=0;
+      }else{
+        statusCell.innerHTML=data.statustext;
+        statusCell.style.color = data.textcolor;
+        btn.innerHTML=data.btntext;
+        btn.style.backgroundColor=data.btncolor;
+      }
+       
+    })
+      
       .catch((error) => {
-        console.error("Error blocking/unblocking user:", error);
+        console.error(error);
       });
   }
 </script>
+
 <%- include('../partials/adminfooter') %>
