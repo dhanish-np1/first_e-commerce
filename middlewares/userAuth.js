@@ -13,7 +13,7 @@ const isLogin = async (req,res,next)=>{
                 res.redirect('/')
             }
         }else{
-            res.redirect('/')
+            res.render('user/userlogin',{lay:false})
         }
       
 

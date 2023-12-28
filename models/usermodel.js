@@ -22,10 +22,6 @@ const userSchema=mongoose.Schema({
         type:Number,
         default:0
     },
-    is_admin:{
-        type:Number,
-        default:0
-    },
     is_block:{
         type:Number,
         default:0

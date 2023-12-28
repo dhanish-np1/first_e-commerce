@@ -143,7 +143,6 @@ const insertUser = async (req, res) => {
                     number: req.body.number,
                     password: spassword,
                     is_verified: 0,
-                    is_admin: 0,
                     is_block: 0,
                   });
 
@@ -352,6 +351,8 @@ const resendOtp = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   loadSign_up,
   insertUser,
@@ -364,4 +365,5 @@ module.exports = {
   loadShop,
   userLogout,
   resendOtp,
+  
 };

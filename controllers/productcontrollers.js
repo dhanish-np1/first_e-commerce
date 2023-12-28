@@ -126,7 +126,7 @@ const addProduct = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-};
+}; 
 
 const blockProduct = async (req, res) => {
   try {
