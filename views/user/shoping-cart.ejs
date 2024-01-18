@@ -12,44 +12,71 @@
 
 <!-- Shoping Cart -->
 <form class="bg0 p-t-75 p-b-85">
-  <div class="container">
+  <div class="container" id="Cart">
     <div class="row">
       <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
         <div class="m-l-25 m-r--38 m-lr-0-xl">
           <div class="wrap-table-shopping-cart">
-            <% if (productCount) { %>
-              <% cartData?.products.forEach(product => { %>
-                <!-- cart box -->
-                <div class="prodectCard">
-                  <img
-                    class="cartImg"
-                    src="/products/images/<%= product.productId.images.image1 %>"
-                    alt=""
+            <% if (productCount) { %> <% cartData?.products.forEach(product => {
+            %>
+            <!-- cart box -->
+            <div class="prodectCard">
+              <img
+                class="cartImg"
+                src="/products/images/<%= product.productId.images.image1 %>"
+                alt=""
+              />
+              <div>
+                <p class="cartText"><%= product.productId.name %></p>
+                <p class="cartText">price: <%= product.productId.price %></p>
+                <% if (product.productId.blocked!==0) { %>
+                  <p style="color: red; padding-top: 3px;">This item no longer for sale </p>
+              <% } else if (product.productId.quantity==0) { %>
+                <p style="color: red; padding-top: 3px;">Out of stock!</p>
+              <% } else { %>
+                <div style="display: flex; margin-top: 15px">
+                  <button
+                    type="button"
+                    class="cardButtons"
+                    onclick="updateQuantity('<%= product.productId._id %>',-1,'<%= product.count %>')"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="text"
+                    class="quantity"
+                    value="<%= product.count %>"
+                    min="1"
+                    max="10"
+                    readonly
                   />
-                  <div>
-                    <p class="cartText"><%= product.productId.name %></p>
-                    <p class="cartText">price: <%= product.productId.price %></p>
-                    <div style="display: flex; margin-top: 15px">
-                      <button class="cardButtons">-</button>
-                      <input
-                        class="quantity"
-                        type="number"
-                        min="1"
-                        max="10"
-                        value="<%= product.count %>"
-                      />
-                      <button class="cardButtons">+</button>
-                    </div>
-                    <button type="button" class=" removeButton" data-toggle="modal" data-target="#exampleModalCenter">REMOVE</button>
-                  </div>
+
+                  <button
+                    type="button"
+                    class="cardButtons"
+                    onclick="updateQuantity('<%= product.productId._id %>',1,'<%= product.count %>')"
+                  >
+                    +
+                  </button>
                 </div>
-    
-                <% }); %>
-            <% } else { %>
-              <h3>Your cart is empty</h3>
+                <% if (product.productId.quantity<=5) { %>
+                  <p style="color: red; padding-top: 3px;">only <%=product.productId.quantity%> left!</p>
+              <% } %>
+              <% } %>
+                
+                <button
+                  type="button"
+                  class="removeButton"
+                  onclick="removeItem('<%=product.productId._id%>')"
+                >
+                  REMOVE
+                </button>
+              </div>
+            </div>
+
+            <% }); %> <% } else { %>
+            <h3>Your cart is empty</h3>
             <% } %>
-            
-            
           </div>
 
           <!-- <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
@@ -83,7 +110,16 @@
             </div>
 
             <div class="size-209">
-              <span class="mtext-110 cl2"> $79.65 </span>
+              <span class="mtext-110 cl2">&#x20B9; <%=cartTotal%></span>
+            </div>
+          </div>
+          <div class="flex-w flex-t bor12 p-b-13">
+            <div class="size-208">
+              <span class="stext-110 cl2"> Discount: </span>
+            </div>
+
+            <div class="size-209">
+              <span class="mtext-110 cl2">&#x20B9; 00.00 </span>
             </div>
           </div>
 
@@ -93,11 +129,13 @@
             </div>
 
             <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2"> $79.65 </span>
+              <span class="mtext-110 cl2"> &#x20B9;<%=cartTotal%> </span>
             </div>
           </div>
 
           <button
+            onclick="loadChekout()"
+            type="button"
             class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
           >
             Proceed to Checkout
@@ -108,25 +146,121 @@
   </div>
 </form>
 
+<script>
+  function removeItem(ProId) {
+    console.log(ProId);
+    Swal.fire({
+      title: "Are You Sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch("/remove-product", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              product: ProId,
+            }),
+          });
 
+          const responseData = await response.json();
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content" style="width: 350px; height: 200px; color: black;">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Remove Iteam </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p style="margin-top: 10px;">Are you sure you want remove this item ?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger">Remove</button>
-      </div>
-    </div>
-  </div>
-</div>
+          if (responseData.success) {
+            await Swal.fire({
+              title: "Deleted!",
+              text: "Your item has been deleted.",
+              icon: "success",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+            location.reload();
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          // Handle error if needed
+        }
+      }
+    });
+  }
+</script>
+
+<script>
+  function updateQuantity(id, newVal, curVal) {
+    $.ajax({
+      url: "/quantity-update",
+      method: "POST",
+      data: {
+        id: id,
+        quantity: newVal,
+        curval: curVal,
+      },
+      dataType: "json",
+      success: function (response) {
+        console.log(response.success);
+        if (response.success) {
+          $("#Cart").load("/cart #Cart");
+        } else {
+          console.log("wanted");
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: response.message,
+          });
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log("not wanted");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error updating product quantity",
+        });
+
+        console.error("AJAX Error:", textStatus, errorThrown);
+      },
+    });
+  }
+</script>
+
+<script>
+  function loadChekout() {
+    fetch("/chekout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log(response.status);
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          window.location.href = "/chekout";
+        } else {
+          console.log("working");
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.message,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error during fetch:", error);
+      });
+  }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

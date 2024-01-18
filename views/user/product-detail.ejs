@@ -132,9 +132,26 @@
 				return response.json();
 			})
 			.then((data) => {
-				if(!data.success){
+				if (!data.success) {
 					window.location.href = '/login';
+				} else {
+					console.log(data);
+					if (data.stock) {
+
+						Swal.fire({
+							title: "item added to cart",
+							text: "You can check your cart or continue shoping",
+							icon: "success"
+						});
+					}else{
+						Swal.fire({
+							title: "Out of stock",
+							text: data.messege,
+							icon: "error"
+						});
+					}
 				}
+
 			})
 
 			.catch((error) => {

@@ -45,10 +45,11 @@
           >
             <i class="zmdi zmdi-search"></i>
           </div>
-          <% if (1==2) { %>
-            <a href="/login">Login</a>
-        <% } else { %>
+          <% if (name) { %>
             <a href="/profile"><img src="/user/icon/user.png" alt="" style="height: 30px;"></a>
+            
+        <% } else { %>
+          <a href="/login">Login</a>
         <% } %>
 
           <!-- <div

@@ -273,7 +273,7 @@
 
   function editCategory() {
     console.log("add category");
-    const formData = new FormData(document.getElementById("editcat"));
+    const formData = new FormData(document.getElementById(`editcat`));
     const urlSearchParams = new URLSearchParams(formData);
 
     fetch("/admin/editcat", {

@@ -1,127 +1,79 @@
-const insertuser = async (req, res) => {
-    try {
-        console.log('hey');
-        const email = req.body.email;
-        const mobile = req.body.number;
-        const password = req.body.password;
-        const name = req.body.name;
-        const conPass = req.body.con_password
-        if (name.length <= 2) {
-            res.json({ name: true })
-        } else {
-            // Check if the email is empty
-            if (email.trim() === "" && mobile.trim() === "" && password.trim() === "" && name.trim() === "" && conPass.trim() === "") {
-                res.json({ require: true })
-            } else {
-                // Email validation using a regular expression
-                var emailPattern = /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-                if (!emailPattern.test(email)) {
-                    res.json({ emailPatt: true })
-                } else {
-                    // Mobile number validation (assumes a 10-digit number)
-                    var mobilePattern = /^\d{10}$/;
-                    if (!mobilePattern.test(mobile) || mobile === "0000000000") {
-                        res.json({ mobile: true })
-                    } else {
-                        // Password validation (assumes a minimum length of 4 characters)
-                        if (password.length < 4) {
-                            res.json({ password: true })
-                        } else {
-                            // If all validations pass, you can proceed with the signup process
-                            //check the email which is already exist
-                            const checkEmail = await User.findOne({ email: req.body.email });
-                            if (checkEmail) {
-                                res.json({ emailalready: true })
-                            } else {
+let placeOrder = async (req, res) => {
+  try {
+    
+    
+    let deliveryAddress = await address.findOne({
+      "addresses._id": addressId,
+      user: req.session.user_id,
+    });
+    if (!deliveryAddress) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery address not found" });
+    } else {
+      let order = new Order({
+        userId: req.session.user_id,
+        address: {
+          firstName: deliveryAddress.addresses[0].firstName,
+          lastName: deliveryAddress.addresses[0].lastName,
+          address: deliveryAddress.addresses[0].address,
+          city: deliveryAddress.addresses[0].city,
+          state: deliveryAddress.addresses[0].state,
+          pin: deliveryAddress.addresses[0].pin,
+          phone: deliveryAddress.addresses[0].phone,
+          email: deliveryAddress.addresses[0].email,
+          additional: deliveryAddress.addresses[0].additional,
+        },
+        products: orderProducts,
+        amount: amount,
+        paymentType: paymentMethod,
+      });
 
-                                const spassword = await securepassword(req.body.password)
-                                const User = new user({
-                                    fullname: req.body.name,
-                                    email: req.body.email,
-                                    number: req.body.number,
-                                    password: spassword,
-                                    is_verified: 0,
-                                    is_admin: 0,
-                                    is_block: 0,
-                                });
+      let savedOrder = await order.save();
+      if (paymentMethod === "cod") {
+        res.json({ success: true, message: "Order placed successfully" });
+        await Cart.updateOne(
+          { userid: req.session.user_id },
+          { $set: { products: [] } }
+        );
+      } else if (savedOrder.paymentType == "paypal") {
+        await Cart.updateOne(
+          { userid: req.session.user_id },
+          { $set: { products: [] } }
+        );
+        const options = {
+          amount: savedOrder.amount * 100,
+          currency: "INR",
+          receipt: savedOrder._id,
+          payment_capture: 1,
+        };
 
-                                const savedUser = await User.save(); // Save the user to the databas
-                                console.log('User inserted successfully:', savedUser);
-
-                                if (savedUser) {
-                                    console.log(savedUser)
-                                    otp = await generateOTP()
-                                    req.session.userId = savedUser._id;
-                                    req.session.userOTP = otp;
-                                    console.log(req.session.userOTP)
-                                    //calling email verification
-                                    sendVerifyMail(req.body.name, req.body.email, otp);
-
-                                    res.render('user/otp', { lay: false, errorMessage: "" })
-                                }
-
-
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-};
-
-
-
-
-
-
-const nsertuser = async (req, res) => {
-    const email = req.body.email;
-    const mobile = req.body.number;
-    const password = req.body.password;
-    const name = req.body.name;
-    const conPass = req.body.con_password
-
-    if (name.length <= 2) {
-        req.session.errorMessage = 'Name should be more than 2 characters';
-        return res.redirect('/sign-up')
-    }
-
-
-    try {
-        const spassword = await securepassword(req.body.password)
-        const User = new user({
-            fullname: req.body.name,
-            email: req.body.email,
-            number: req.body.number,
-            password: spassword,
-            is_verified: 0,
-            is_admin: 0,
-            is_block: 0,
+        razorpay.orders.create(options, (err, order) => {
+          if (err) {
+            throw new Error("something went wrong, try again later");
+          } else {
+            res.json({ order });
+          }
         });
-
-        const savedUser = await User.save(); // Save the user to the databas
-        console.log('User inserted successfully:', savedUser);
-
-        if (savedUser) {
-            console.log(savedUser)
-            otp = await generateOTP()
-            req.session.userId = savedUser._id;
-            req.session.userOTP = otp;
-            console.log(req.session.userOTP)
-            //calling email verification
-            sendVerifyMail(req.body.name, req.body.email, otp);
-
-            res.render('user/otp', { lay: false, errorMessage: "" })
+      } else if (paymentMethod === "wallet") {
+        if (userDa.wallet < amount) {
+          res.json({
+            success: false,
+            message: "Insufficient balance in wallet",
+          });
+        } else {
+          userDa.wallet = userDa.wallet - amount;
+          await userDa.save();
+          await Cart.updateOne(
+            { userid: req.session.user_id },
+            { $set: { products: [] } }
+          );
+          res.json({ success: true, message: "Order placed successfully" });
         }
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ error: error.message }); // Handle the error and respond with an error status
+      }
     }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 };

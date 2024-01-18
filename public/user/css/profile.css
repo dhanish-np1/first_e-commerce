@@ -55,24 +55,28 @@
     font-family: Montserrat-Bold;
     src: url('../fonts/Montserrat/Montserrat-Bold.ttf');
 }
-.heading{
+
+.heading {
     color: black;
     padding-bottom: 25px;
 }
-.profile{
+
+.profile {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
 }
-.itemImg{
+
+.itemImg {
     padding: 10px;
     height: 70px;
 }
-.itemheading{
+
+.itemheading {
     padding: 7px;
 }
 
-.profileItems{
+.profileItems {
     width: 250px;
     height: 80px;
     border: 1px solid rgb(48, 46, 46);
@@ -81,6 +85,30 @@
     color: black;
 }
 
-.userDetaliles{
-    
+.userDetaliles {}
+
+
+/* list orders */
+.listOrders {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.orders {
+    box-shadow: 0 4px 8px rgba(157, 151, 151, 0.5);
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+.orderimg {
+    margin: 15px;
+    height: 100px;
+    width: 100px;
+}
+
+.imgdiv {
+    display: flex;
+    align-items: center;
 }

@@ -29,3 +29,18 @@
     outline: 0;
     width: 100% !important;
 }
+
+
+.showAddress{
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    height: 266px;
+    width: 320px;
+    border: 1px solid gray;
+    border-radius: 10px;
+}
+.addressField{
+    margin-left: 10px;
+    color: black;
+}

@@ -1,10 +1,35 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  deliveryDetails: {
-    type: String,
-    required: true,
-  },
+    address: {
+        Name: {
+            type: String,
+            required: true,
+        },
+        city: {
+            type: String,
+            required: true,
+        },
+        state: {
+            type: String,
+            required: true,
+        },
+        pin: {
+            type: String,
+            required: true,
+        },
+        phone: {
+            type: Number,
+            required: true,
+        },
+        email: {
+            type: String,
+            required: true,
+        },
+        houseNo: {
+            type: String,
+        }
+    },
   user: {
     type: mongoose.Types.ObjectId,
   },
@@ -21,25 +46,25 @@ const orderSchema = new mongoose.Schema({
   },
   products: [
     {
-      productId: {
-        type: String,
-        required: true,
-        ref: "product",
-      },
-      count: {
-        type: Number,
-        default: 1,
-      },
-      productPrice: {
-        type: Number,
-        required: true,
-      },
-      totalPrice: {
-        type: Number,
-        required: true,
-      }
-    },
-  ],
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'product',
+            required: true,
+        },
+        quantity: {
+            type: Number,
+            default: 1,
+        },
+        product_name: {
+            type: String,  // Add this field to store the product name
+            required: true,
+        },
+        image: {
+            type: String,  // Add this field to store the product image
+            required: true,
+        }
+    }
+],
   
   deliveryDate: {
     type: Date,
@@ -53,9 +78,6 @@ const orderSchema = new mongoose.Schema({
   totalAmount: {
     type: Number,
     required: true,
-  },
-  date: {
-    type: Date,
   },
   status: {
     type: String,

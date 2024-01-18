@@ -3,6 +3,8 @@ const user = require("../models/usermodel");
 const { render } = require("ejs");
 const bcrypt = require("bcrypt");
 const category = require("../models/catogerymodel");
+const order = require("../models/orderModel");
+
 
 const loadAdmin = async (req, res) => {
   try {
@@ -212,7 +214,15 @@ const adminLogout = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
+const loadOrder = async (req,res) => {
+  try {
+    const orders = await order.find();
+    console.log(orders);
+    res.render('admin/order',{lay:false,orders})
+  } catch (error) {
+    console.log(error.massage);
+  }
+};
 module.exports = {
   loadAdmin,
   loadCatogery,
@@ -224,4 +234,5 @@ module.exports = {
   editCat,
   blockUser,
   adminLogout,
+  loadOrder
 };

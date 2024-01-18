@@ -439,6 +439,11 @@
 								<span class="stext-105 cl3">
 									<%=products[i].price%>
 								</span>
+								<% if (products[i].quantity<=5 && products[i].quantity>0) { %>
+									<p class="stext-105 cl3" style="color: red">only <%=products[i].quantity%> stock left</p>
+									<% } else if(products[i].quantity==0) { %>
+									<p class="stext-105 cl3" style="color: red">Out of stock!</p>
+									<% } %>
 							</div>
 	
 							<div class="block2-txt-child2 flex-r p-t-3">

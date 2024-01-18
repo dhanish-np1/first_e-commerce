@@ -12,8 +12,18 @@ const loadCart = async (req, res) => {
     const cartData = await cart
       .findOne({ userId: userId })
       .populate("products.productId");
+    let cartTotal = cartData.products.reduce((total, product) => {
+      return total + product.productId.price * product.count;
+    }, 0);
     const productCount = cartData?.products.length;
-    res.render("user/shoping-cart", { lay: true, cartData, productCount });
+    console.log(cartData.products);
+    res.render("user/shoping-cart", {
+      lay: true,
+      cartData,
+      productCount,
+      cartTotal,
+      name: req.session.name,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -22,7 +32,6 @@ const loadCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
-  
     const userId = req.session.user_id;
     const userData = await user.findOne({ _id: userId });
     const proId = req.body.productId;
@@ -32,6 +41,13 @@ const addToCart = async (req, res) => {
       return res.json({
         success: false,
         redirectTo: "/login",
+      });
+    }
+    if (productQuantity <= 0) {
+      return res.json({
+        success: true,
+        stock: false,
+        messege: "quantity limit reached",
       });
     }
     const cartData = await cart.findOneAndUpdate(
@@ -49,15 +65,14 @@ const addToCart = async (req, res) => {
       (product) => product.productId === proId
     );
     const updatedQuantity = updatedProduct ? updatedProduct.count : 0;
-    if (updatedQuantity + 1 > productQuantity) {
+    if (updatedQuantity + 1 > productQuantity ||updatedQuantity + 1 >5) {
       return res.json({
-        success: false,
+        success: true,
         message: "Quantity limit reached!",
       });
     }
 
     const price = productData.price;
-    const total = price;
 
     if (updatedProduct) {
       await cart.updateOne(
@@ -65,39 +80,92 @@ const addToCart = async (req, res) => {
         {
           $inc: {
             "products.$.count": 1,
-            "products.$.totalPrice": total,
           },
         }
       );
     } else {
       cartData.products.push({
         productId: proId,
-        productPrice: total,
-        totalPrice: total,
+        productPrice: price,
       });
       await cartData.save();
     }
 
-    res.json({ success: true });
+    return res.json({ success: true, stock: true });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-const removeCart =async ()=>{
+const removeCart = async (req, res) => {
   try {
-    
-
-    
+    const userId = req.session.user_id;
+    const proId = req.body.product;
+    const cartData = await cart.findOne({ userId: userId });
+    if (cartData) {
+      await cart.findOneAndUpdate(
+        { userId: userId },
+        {
+          $pull: { products: { productId: proId } },
+        }
+      );
+      res.json({ success: true });
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
+
+const quantityUpdate = async (req, res) => {
+  try {
+    const userId = req.session.user_id;
+    const proId = req.body.id;
+    const count = req.body.quantity;
+    const currentvalue = req.body.curval;
+    const productData = await product.findOne({ _id: proId, blocked: 0 });
+    if (!productData) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Product not found or blocked" });
+    }
+    if (
+      (currentvalue >= productData.quantity && count == 1) ||
+      (count == 1 && currentvalue >= 5) ||
+      (count == -1 && currentvalue <= 1)
+    ) {
+      return res.status(200).json({
+        success: false,
+        message: "Invalid quantity or stock exceeded",
+      });
+    }
+    await cart.updateOne(
+      { userId: userId, "products.productId": proId },
+      { $inc: { "products.$.count": count } }
+    );
+    const updateCart = await cart
+      .findOne({ userId: userId })
+      .populate("products.productId");
+    let cartTotal = updateCart.products.reduce((total, product) => {
+      return total + product.productId.price * product.count;
+    }, 0);
+
+    return res.json({
+      success: true,
+      updateCart,
+      cartTotal,
+    });
+  } catch (error) {
+    console.log(error);
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 module.exports = {
   loadCart,
   addToCart,
-  removeCart
+  removeCart,
+  quantityUpdate,
 };

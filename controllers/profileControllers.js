@@ -3,6 +3,9 @@ const product = require("../models/productmodel");
 const category = require("../models/catogerymodel");
 const user = require("../models/usermodel");
 const address = require("../models/addressModel");
+const order = require("../models/orderModel");
+
+
 
 const loadProfile = async (req, res) => {
   try {
@@ -90,7 +93,7 @@ const editDetails = async (req, res) => {
 
 const loadChangePassword = async (req, res) => {
   try {
-    res.render("user/changePassword", { lay: true });
+    res.render("user/changePassword", { lay: true,name: req.session.name });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -99,7 +102,8 @@ const loadChangePassword = async (req, res) => {
 
 const loadAddress = async (req, res) => {
   try {
-    res.render("user/Address", { lay: true });
+    const Address = await address.findOne({user:req.session.user_id})
+    res.render("user/Address", { lay: true,Address,name: req.session.name });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -108,7 +112,8 @@ const loadAddress = async (req, res) => {
 
 const loadAddAddress = async (req, res) => {
   try {
-    res.render("user/addAddress", { lay: true });
+    
+    res.render("user/addAddress", { lay: true,name: req.session.name });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -222,6 +227,16 @@ const addAddress = async (req, res) => {
   }
 };
 
+const loadOrders = async (req,res)=>{
+  try {
+    const orders = await order.find({userId:req.session.user_id});
+    console.log(orders);
+    res.render("user/orders", { lay: true,name: req.session.name,orders });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 module.exports = {
   loadProfile,
   loadUserDetailes,
@@ -230,4 +245,5 @@ module.exports = {
   loadAddress,
   loadAddAddress,
   addAddress,
+  loadOrders,
 };

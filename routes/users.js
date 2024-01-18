@@ -5,6 +5,7 @@ const auth = require("../middlewares/userAuth");
 const productcontroller = require("../controllers/productcontrollers");
 const profileController = require("../controllers/profileControllers");
 const cartController = require("../controllers/cartControllers");
+const orderController = require("../controllers/orderControllers");
 //==================================login/logout/sign-up======================================
 userRouter.get("/sign-up", auth.isLogout, usercontroller.loadSign_up);
 userRouter.get("/login", auth.isLogout, usercontroller.loadLogin);
@@ -29,29 +30,41 @@ userRouter.get(
   auth.isLogin,
   profileController.loadUserDetailes
 );
-userRouter.post(
-  "/user-details",
-  auth.isLogin,
-  profileController.editDetails
-);
+userRouter.post("/user-details", auth.isLogin, profileController.editDetails);
 //==================================Change password====================================================
 userRouter.get(
   "/changePassword",
   auth.isLogin,
   profileController.loadChangePassword
 );
-userRouter.post(
-  "/changePassword",
-  auth.isLogin,
-  profileController.editDetails
-);
+userRouter.post("/changePassword", auth.isLogin, profileController.editDetails);
 //==================================Add Address====================================================
-userRouter.get('/add-address',auth.isLogin,profileController.loadAddress)
-userRouter.get('/load-add-address',auth.isLogin,profileController.loadAddAddress)
-userRouter.post('/add-address',auth.isLogin,profileController.addAddress)
+userRouter.get("/add-address", auth.isLogin, profileController.loadAddress);
+userRouter.get(
+  "/load-add-address",
+  auth.isLogin,
+  profileController.loadAddAddress
+);
+userRouter.post("/add-address", auth.isLogin, profileController.addAddress);
 //==================================cart====================================================
 userRouter.get("/cart", auth.isLogin, cartController.loadCart);
-userRouter.post("/addToCart", cartController.addToCart)
-userRouter.post("/remove-product",auth.isLogin, cartController.removeCart)
+userRouter.post("/addToCart", cartController.addToCart);
+userRouter.post("/remove-product", auth.isLogin, cartController.removeCart);
+userRouter.post(
+  "/quantity-update",
+  auth.isLogin,
+  cartController.quantityUpdate
+);
+
+//==================================Chekout====================================================
+userRouter.get("/chekout", auth.isLogin, orderController.loadProceedCheckout);
+userRouter.post("/chekout", auth.isLogin, orderController.proceedCheckout);
+
+//==================================order====================================================
+userRouter.post("/placeOrder",auth.isLogin,orderController.placeOrder)
+userRouter.get("/orderSuccess",auth.isLogin,orderController.loadSuccess)
+userRouter.get("/orders",auth.isLogin,profileController.loadOrders)
+
+
 
 module.exports = userRouter;
