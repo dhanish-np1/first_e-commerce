@@ -46,6 +46,13 @@ adminRouter.post("/blockcat", admincontroller.blockCat);
 adminRouter.post("/editcat", admincontroller.editCat);
 
 
+//=================================orders=====================================================
+adminRouter.post("/statusUpdate", isAuth.isLogin, orderContoller.statusUpdate);
 adminRouter.get("/orders", isAuth.isLogin, admincontroller.loadOrder);
+adminRouter.get("/viewOrders", isAuth.isLogin, admincontroller.viewOrder);
+
+
+
+
 
 module.exports = adminRouter;

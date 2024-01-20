@@ -125,10 +125,11 @@ const placeOrder = async (req, res) => {
         });
       }
     }
-    
+
     let orderProducts = [];
     for (let i = 0; i < productsData.length; i++) {
       let updatedStock = productsData[i].quantity - cartData.products[i].count;
+      console.log(productsData[i]);
       await product.updateOne(
         { _id: productsData[i]._id },
         { $set: { quantity: updatedStock } }
@@ -136,6 +137,7 @@ const placeOrder = async (req, res) => {
       orderProducts.push({
         productId: productsData[i]._id,
         quantity: cartData.products[i].count,
+        price: productsData[i].price,
         product_name: productsData[i].name,
         image: productsData[i].images.image1,
       });
@@ -194,9 +196,68 @@ const placeOrder = async (req, res) => {
   }
 };
 
+const statusUpdate = async (req, res) => {
+  try {
+    const orderId = req.body.id;
+    const orderData = await order.findOne({ _id: orderId });
+    const userId = orderData.userId;
+    const statusLevel = req.body.level;
+    const amount = orderData.totalAmount;
+    const products = orderData.products;
+    console.log(statusLevel);
+    console.log(orderId);
+    if (statusLevel == 1) {
+      console.log("w1");
+      await order.updateOne(
+        { _id: orderId },
+        { status: "cancelled", statusLevel: 0 }
+      );
+    } else if (statusLevel == 2) {
+      console.log("w2");
+      await order.updateOne(
+        { _id: orderId },
+        { status: "shipped", statusLevel: 1 }
+      );
+    } else if (statusLevel == 3) {
+      console.log("w3");
+      await order.updateOne(
+        { _id: orderId },
+        { status: "delivered", statusLevel: 2, deliveryDate: new Date() }
+      );
+    }
+    const orders = await order.find();
+    return res.json({
+      success: true,
+      orders
+      
+    });
+  } catch (error) {
+    console.log(error.massage);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+const cancelOrder = async (req, res) => {
+  try {
+    const orderId=req.body.id;
+    await order.updateOne(
+      { _id: orderId },
+      { status: "cancelled", statusLevel: 0 }
+    );
+    return res.json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error.massage);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   loadProceedCheckout,
   loadSuccess,
   placeOrder,
   proceedCheckout,
+  statusUpdate,
+  cancelOrder
 };

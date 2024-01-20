@@ -37,7 +37,7 @@ userRouter.get(
   auth.isLogin,
   profileController.loadChangePassword
 );
-userRouter.post("/changePassword", auth.isLogin, profileController.editDetails);
+userRouter.post("/changePassword", auth.isLogin, profileController.ChangePassword);
 //==================================Add Address====================================================
 userRouter.get("/add-address", auth.isLogin, profileController.loadAddress);
 userRouter.get(
@@ -46,6 +46,7 @@ userRouter.get(
   profileController.loadAddAddress
 );
 userRouter.post("/add-address", auth.isLogin, profileController.addAddress);
+userRouter.post("/remove-address", auth.isLogin, profileController.removeAddress);
 //==================================cart====================================================
 userRouter.get("/cart", auth.isLogin, cartController.loadCart);
 userRouter.post("/addToCart", cartController.addToCart);
@@ -64,6 +65,9 @@ userRouter.post("/chekout", auth.isLogin, orderController.proceedCheckout);
 userRouter.post("/placeOrder",auth.isLogin,orderController.placeOrder)
 userRouter.get("/orderSuccess",auth.isLogin,orderController.loadSuccess)
 userRouter.get("/orders",auth.isLogin,profileController.loadOrders)
+userRouter.post("/cancelOrders",auth.isLogin,orderController.cancelOrder)
+
+
 
 
 

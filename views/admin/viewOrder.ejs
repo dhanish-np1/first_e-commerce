@@ -1,0 +1,123 @@
+<%- include('../partials/adminheadder') %>
+
+    <div class="content-wrapper">
+        <div class="page-header">
+
+            <h2>fgf</h2>
+        </div>
+        <div class="row">
+
+            <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Order details</h4>
+                        </p>
+                        <div class="mainOrder">
+                            <div class="order-det">
+                                <table class="table table-striped table-dark">
+                                    
+                                    <tbody>
+                                        <tr>
+                                            <td>Name:</td>
+                                            <td><%=orders.address.Name%></td>
+                                        </tr>
+                                        <tr>
+                                            <td>city:</td>
+                                            <td><%=orders.address.city%></td>
+                                        </tr>
+                                        <tr>
+                                            <td>state:</td>
+                                            <td><%=orders.address.state%></td>
+                                        </tr>
+                                        <tr>
+                                            <td>pin:</td>
+                                            <td><%=orders.address.pin%></td>
+                                        </tr>
+                                        <tr>
+                                            <td>phone:</td>
+                                            <td><%=orders.address.phone%></td>
+                                        </tr>
+                                        <tr>
+                                            <td>email:</td>
+                                            <td><%=orders.address.email%></td>
+                                        </tr>
+                                        <tr>
+                                            <td>house no:</td>
+                                            <td><%=orders.address.houseNo%></td>
+                                        </tr>
+                                        
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="order-det">
+                                <table class="table table-striped table-dark">
+                                    
+                                    <tbody>
+                                        
+                                        <tr><td>Amount: </td>
+                                        <td><%=orders.totalAmount%></td>
+                                        </tr>
+                                        <tr><td>Date</td>
+                                        <td><%=new
+                                            Date(orders.deliveryDate).toLocaleDateString()%></td>
+                                        </tr>
+                                        <tr><td>Status</td>
+                                        <td><%=orders.status%></td>
+                                        </tr>
+                                        <%if(1==1){%>
+
+                                            <%}%>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-dark">
+                                <thead>
+                                    <tr>
+                                        <th> No </th>
+                                        <th> name </th>
+                                        <th> Image</th>
+                                        <th> Product Price </th>
+                                        <th> Quantity </th>
+                                        <th> Order status</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                        <% for (var i = 0; i < orders.products.length; i++) { %>
+                                           <tr>
+                                            <td><%=i+1%></td>
+                                            <td><%=orders.products[i].product_name.slice(0, 15)%></td>
+                                            <td><img src="/products/crop/<%=orders.products[i].image%>" alt=""></td>
+                                            <td><%=orders.products[i].price%></td>
+                                            <td><%=orders.products[i].quantity%></td>
+                                            <td><%=orders.status%></td>
+
+
+
+                                           </tr>
+                                           
+                                           
+                                          <% } %>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+   
+
+    <%- include('../partials/adminfooter') %>

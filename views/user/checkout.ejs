@@ -20,6 +20,21 @@
           class="m-l-25 m-r--38 m-lr-0-xl"
           style="display: flex; flex-wrap: wrap; gap: 20px; color: black"
         >
+        <a href="/load-add-address?page=/chekout">
+          <div class="addAddressInChek">
+            <img src="/user/icon/Untitled.png" alt="" />
+            <p
+              style="
+                font-size: 30px;
+                font-weight: 700;
+                font-size: 24px;
+                line-height: 32px;
+              "
+            >
+              Add Address
+            </p>
+          </div>
+        </a>
           <% for (let i = 0; i < Address?.address.length; i++) { %>
 
           <div class="selectAddress">
@@ -45,21 +60,7 @@
             <p><%=Address.address[i].pin%></p>
           </div>
           <% } %>
-          <a href="/load-add-address">
-            <div class="addAddressInChek">
-              <img src="/user/icon/Untitled.png" alt="" />
-              <p
-                style="
-                  font-size: 30px;
-                  font-weight: 700;
-                  font-size: 24px;
-                  line-height: 32px;
-                "
-              >
-                Add Address
-              </p>
-            </div>
-          </a>
+          
         </div>
       </div>
 

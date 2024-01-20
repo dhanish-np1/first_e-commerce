@@ -1,5 +1,17 @@
 <%- include('../partials/adminheadder') %>
-
+<style>
+    .canceled-box {
+      width: 75px;
+      height: 25px;
+      background-color: #f8d7da;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      font-weight: bold;
+    }
+  </style>
     <div class="content-wrapper">
         <div class="page-header">
 
@@ -26,7 +38,7 @@
 
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="table">
                                     <% if (orders.length>0) { %>
                                         <% for (let i=0; i < orders.length; i++) { %>
                                             <tr>
@@ -47,14 +59,18 @@
                                                 <td>
                                                     <%=orders[i].status%>
                                                 </td>
-                                                <td><button style="border-radius: 10px;" type="button"
-                                                        class="btn btn-primary">view</button></td>
+                                                <td><a href="/admin/viewOrders?id=<%=orders[i]._id%>"><button style="border-radius: 10px;" type="button"
+                                                    class="btn btn-primary">view</button></a></td>
                                                 <td>
-                                                    <% if (2==1) { %>
-
+                                                    <% if (orders[i].status!=='placed' && orders[i].status!=='shipped') { %>
+                                                        <% if (orders[i].status=='cancelled') { %>
+                                                            <button type="button" class="btn btn-outline-danger">canceled</button>
+                                                        <% } else if (orders[i].status=='delivered') { %>
+                                                            <button type="button" class="btn btn-outline-success">delivered</button>
+                                                        <% } %>
                                                         <% } else { %>
-                                                            <div class="dropdown" >
-                                                                <button class="btn btn-primary dropdown-toggle"
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-outline-primary dropdown-toggle"
                                                                     type="button" id="dropdownMenu2"
                                                                     data-toggle="dropdown" aria-haspopup="true"
                                                                     aria-expanded="false">
@@ -62,12 +78,19 @@
                                                                 </button>
                                                                 <div class="dropdown-menu "
                                                                     aria-labelledby="dropdownMenu2">
-                                                                    <button class="dropdown-item " style="color: white;" 
-                                                                        type="button">Delivered</button>
-                                                                    <button class="dropdown-item" type="button" style="color: white;">
+                                                                    <button
+                                                                        onclick="statusUpdate('<%=orders[i]._id%>',1)"
+                                                                        class="dropdown-item" style="color: white;"
+                                                                        type="button">Cancel</button>
+                                                                    <button
+                                                                        onclick="statusUpdate('<%=orders[i]._id%>',2)"
+                                                                        class="dropdown-item" type="button"
+                                                                        style="color: white;">
                                                                         Shipped</button>
-                                                                    <button class="dropdown-item" style="color: white;"
-                                                                        type="button">Cancelled</button>
+                                                                    <button
+                                                                        onclick="statusUpdate('<%=orders[i]._id%>',3)"
+                                                                        class="dropdown-item" style="color: white;"
+                                                                        type="button">Deliver</button>
                                                                 </div>
                                                             </div>
                                                             <% } %>
@@ -93,6 +116,42 @@
 
 
     </div>
+
+
+    <script>
+        function statusUpdate(id, level) {
+            $.ajax({
+                url: "/admin/statusUpdate",
+                method: "POST",
+                data: {
+                    id: id,
+                    level: level
+
+                },
+                dataType: "json",
+
+                success: function (response) {
+                    $("#table").load("/admin/orders #table");
+                    console.log(response.success);
+                    if (response.success) {
+                        $("#table").load("/orders #table");
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: 'somthing is wrong please try again',
+                        });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("not wanted");
+                    console.error("AJAX Error:", textStatus, errorThrown);
+                },
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
     <%- include('../partials/adminfooter') %>

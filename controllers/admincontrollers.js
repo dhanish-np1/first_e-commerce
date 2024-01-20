@@ -217,8 +217,18 @@ const adminLogout = async (req, res) => {
 const loadOrder = async (req,res) => {
   try {
     const orders = await order.find();
-    console.log(orders);
     res.render('admin/order',{lay:false,orders})
+  } catch (error) {
+    console.log(error.massage);
+  }
+};
+
+const viewOrder = async (req,res) => {
+  try {
+    const id=req.query.id
+    const orders = await order.findOne({_id:id});
+    console.log(orders);
+    res.render('admin/viewOrder',{lay:false,orders})
   } catch (error) {
     console.log(error.massage);
   }
@@ -234,5 +244,6 @@ module.exports = {
   editCat,
   blockUser,
   adminLogout,
-  loadOrder
+  loadOrder,
+  viewOrder
 };

@@ -90,6 +90,7 @@
 
 /* list orders */
 .listOrders {
+    padding-bottom: 150px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -98,12 +99,18 @@
 .orders {
     box-shadow: 0 4px 8px rgba(157, 151, 151, 0.5);
     border: 1px solid black;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    flex-wrap: wrap;
 }
 
 .orderimg {
-    margin: 15px;
+    
     height: 100px;
     width: 100px;
 }
@@ -111,4 +118,7 @@
 .imgdiv {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
 }

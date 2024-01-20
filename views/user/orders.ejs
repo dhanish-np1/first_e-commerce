@@ -22,10 +22,54 @@
           alt=""
           class="orderimg"
         />
-        <p style="color: black"><%=orders[i].products[j].product_name%></p>
+        <div style="width: 100px">
+          <p style="color: black"><%=orders[i].products[j].product_name%></p>
+        </div>
+        <div>
+          <p style="color: black">
+            date <br /><%=new
+            Date(orders[i].deliveryDate).toLocaleDateString()%>
+          </p>
+        </div>
+        <div>
+          <p style="color: black">
+            price <br /><%=orders[i].products[j].price%>
+          </p>
+        </div>
+        <div>
+          <p style="color: black">
+            quantity <br />
+            &nbsp; &nbsp;<%=orders[i].products[j].quantity%>
+          </p>
+        </div>
+        <div>
+          <p style="color: black">
+            total <br />
+            <%=orders[i].products[j].price * orders[i].products[j].quantity %>
+          </p>
+        </div>
+        <div>
+          <p style="color: black">
+            Status <br />
+            <%=orders[i].status%>
+          </p>
+        </div>
+        <div></div>
+        <!-- <div>
+          <button type="button" class="btn btn-danger">Cancel item</button>
+        </div> -->
       </div>
-      
+      <hr style="border: none; border-top: 1px solid #000" />
       <% } %>
+      <div>
+        <button type="button" class="btn btn-primary">view details</button>
+        <% if (orders[i].status!=='cancelled' && orders[i].status!=='delivered') { %>
+          <button type="button" class="btn btn-danger" onclick="cancelOrders('<%=orders[i]._id%>')">
+            Cancel order
+          </button>
+      <% } %>
+        
+      </div>
     </div>
     <% } %>
   </div>
@@ -48,3 +92,55 @@
   </div>
   <% } %>
 </div>
+
+<script>
+  function cancelOrders(id) {
+    Swal.fire({
+      title: "Are You Sure?",
+      // text: "Enter the reason for cancel the order",
+      icon: "warning",
+      background: "#edeff2",
+      // input: "text",
+      inputAttributes: {
+        required: "required",
+      },
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Cancel order",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // const inputValue = result.value;
+          const response = await fetch("/cancelOrders", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id:id,
+              // reason:inputValue,
+            }),
+          });
+
+          const responseData = await response.json();
+
+          if (responseData.success) {
+            await Swal.fire({
+              title: "Order Canceled",
+              text: "Your order has been successfully canceled. We hope to serve you again soon.",
+              icon: "success",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+            location.reload();
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          // Handle error if needed
+        }
+      }
+    });
+  }
+</script>

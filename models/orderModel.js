@@ -55,6 +55,10 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             default: 1,
         },
+        price:{
+          type:Number,
+          required: true,
+        },
         product_name: {
             type: String,  // Add this field to store the product name
             required: true,

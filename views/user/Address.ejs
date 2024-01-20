@@ -1,34 +1,89 @@
 <section class="bg0 p-t-20 p-b-70">
   <div class="container" style="display: flex; gap: 10px; flex-wrap: wrap">
-    <a href="/load-add-address"
-      ><div class="addAddress">
-        <img src="/user/icon/Untitled.png" alt="" />
-        <p
-          style="
+    <a href="/load-add-address?page=/profile">
+    <div class="addAddress">
+      <img src="/user/icon/Untitled.png" alt="" />
+      <p style="
             font-size: 30px;
             font-weight: 700;
             font-size: 24px;
             line-height: 32px;
-          "
-        >
-          Add Address
-        </p>
-      </div></a
-    >
-    <% for (let i = 0; i < Address?.address.length; i++) { %>
+          ">
+        Add Address
+      </p>
+    </div>
+    </a>
+    <% for (let i=0; i < Address?.address.length; i++) { %>
       <div class="showAddress">
-        <h2 style="color: black; margin-left: 70px; margin-top: 5px;">Address <%=i+1%></h2>
+        <h2 style="color: black; margin-left: 70px; margin-top: 5px;">Address <%=i+1%>
+        </h2>
         <hr style="border-top: 2px solid black; width: 100%; margin: 10px 0" />
-        <p class="addressField">Name: <%=Address.address[i].fullname%></p>
-        <p class="addressField">Email: <%=Address.address[i].email%></p>
-        <p class="addressField">Phone: <%=Address.address[i].mobile%></p>
-        <p class="addressField">State: <%=Address.address[i].state%></p>
-        <p class="addressField">City: <%=Address.address[i].city%></p>
-        <p class="addressField">House No : <%=Address.address[i].houseName%></p>
-        <p class="addressField">Pin: <%=Address.address[i].pin%></p>
-
+        <p class="addressField">Name: <%=Address.address[i].fullname%>
+        </p>
+        <p class="addressField">Email: <%=Address.address[i].email%>
+        </p>
+        <p class="addressField">Phone: <%=Address.address[i].mobile%>
+        </p>
+        <p class="addressField">State: <%=Address.address[i].state%>
+        </p>
+        <p class="addressField">City: <%=Address.address[i].city%>
+        </p>
+        <p class="addressField">House No : <%=Address.address[i].houseName%>
+        </p>
+        <p class="addressField">Pin: <%=Address.address[i].pin%>
+        </p>
+        <button type="button" style="color:red;" onclick="removeAddress('<%=Address._id%>','<%=Address.address[i]._id%>')">Remove</button>
       </div>
-  <% } %>
-    
+      <% } %>
+
   </div>
 </section>
+
+<script>
+  function removeAddress(Id,addId) {
+    console.log(Id);
+    console.log(addId);
+    Swal.fire({
+      title: "Are You Sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch("/remove-address", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              _id:Id,
+              addressId:addId
+            }),
+          });
+
+          const responseData = await response.json();
+
+          if (responseData.success) {
+            await Swal.fire({
+              title: "Deleted!",
+              text: "Address has been deleted.",
+              icon: "success",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+            location.reload();
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          // Handle error if needed
+        }
+      }
+    });
+  }
+
+</script>

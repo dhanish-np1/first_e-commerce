@@ -1,6 +1,7 @@
 <section class="bg0 p-t-20 p-b-70">
   <div class="container" style="display: flex; justify-content: center">
     <form id="addAddress" class="col-md-6">
+      <input type="text" hidden name="page" value="<%=page%>">
       <h2 style="color: black; padding-bottom: 15px">Add new address</h2>
       <label class="addressLabel" for="">Full Name</label>
       <input class="addressInput" name="name" type="text" />
@@ -67,9 +68,7 @@
       fetch("/add-address", {
         method: "POST",
         body: urlSearchParams,
-        headers: {
-          "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        },
+        
       })
       .then((response) => {
         if (!response.ok) {
@@ -79,8 +78,9 @@
         return response.json();
       })
         .then((data) => {
+          console.log(data);
             if (data.success) {
-            window.location.href = "/otp";
+            window.location.href = data.page;
           } else {
             document.getElementById("error-message").innerHTML =data.errorMessage;
           }
