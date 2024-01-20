@@ -14,11 +14,15 @@ const loadProceedCheckout = async (req, res) => {
       .findOne({ userId: userId })
       .populate("products.productId");
     const productCount = cartData?.products.length;
+    let cartTotal = cartData.products.reduce((total, product) => {
+      return total + product.productId.price * product.count;
+    }, 0);
     res.render("user/checkout", {
       lay: true,
       cartData,
       productCount,
       Address,
+      cartTotal,
       name: req.session.name,
     });
   } catch (error) {

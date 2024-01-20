@@ -62,7 +62,7 @@
       <hr style="border: none; border-top: 1px solid #000" />
       <% } %>
       <div>
-        <button type="button" class="btn btn-primary">view details</button>
+        <!-- <button type="button" class="btn btn-primary">view details</button> -->
         <% if (orders[i].status!=='cancelled' && orders[i].status!=='delivered') { %>
           <button type="button" class="btn btn-danger" onclick="cancelOrders('<%=orders[i]._id%>')">
             Cancel order
