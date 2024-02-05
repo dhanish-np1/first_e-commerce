@@ -31,6 +31,7 @@ userRouter.get(
   profileController.loadUserDetailes
 );
 userRouter.post("/user-details", auth.isLogin, profileController.editDetails);
+userRouter.get("/coupons", auth.isLogin, profileController.loadCoupons);
 //==================================Change password====================================================
 userRouter.get(
   "/changePassword",

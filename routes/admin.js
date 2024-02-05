@@ -3,6 +3,9 @@ const adminRouter = express.Router();
 const admincontroller = require("../controllers/admincontrollers");
 const productcontroller = require("../controllers/productcontrollers");
 const orderContoller =require("../controllers/orderControllers");
+const couponsController = require("../controllers/couponsControllers");
+const offerController = require("../controllers/offerControllers");
+const bannerController = require("../controllers/bannerControllers")
 const multer = require("../middlewares/multer");
 const isAuth = require("../middlewares/adminAuth");
 
@@ -51,8 +54,22 @@ adminRouter.post("/statusUpdate", isAuth.isLogin, orderContoller.statusUpdate);
 adminRouter.get("/orders", isAuth.isLogin, admincontroller.loadOrder);
 adminRouter.get("/viewOrders", isAuth.isLogin, admincontroller.viewOrder);
 
-
-
+//=================================coupons=====================================================
+adminRouter.get("/coupons", isAuth.isLogin, couponsController.loadCoupens);
+adminRouter.get("/add-coupons", isAuth.isLogin, couponsController.loadAddCoupens);
+adminRouter.post("/add-coupons", isAuth.isLogin, couponsController.addCoupens);
+adminRouter.post("/block-coupons", isAuth.isLogin, couponsController.blockCoupon);
+adminRouter.get("/edit-coupons", isAuth.isLogin, couponsController.loadEditCoupon);
+adminRouter.post("/edit-coupons", isAuth.isLogin, couponsController.editCoupon);
+//=================================Offers=====================================================
+adminRouter.get("/offers", isAuth.isLogin, offerController.loadOffers);
+adminRouter.get("/addoffers", isAuth.isLogin, offerController.loadAddOffers);
+adminRouter.post("/addoffers", isAuth.isLogin, offerController.addOffers);
+adminRouter.post("/blockOffers", isAuth.isLogin, offerController.blockOffer);
+adminRouter.get("/editOffer", isAuth.isLogin, offerController.loadEditOffer);
+adminRouter.post("/editOffer", isAuth.isLogin, offerController.editOffer);
+//=================================banner=====================================================
+adminRouter.get("/banner", isAuth.isLogin, bannerController.loadBanner);
 
 
 module.exports = adminRouter;

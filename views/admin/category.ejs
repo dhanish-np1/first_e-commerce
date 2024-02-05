@@ -164,7 +164,7 @@
                       id="exampleModal<%=cats[i]._id%>"
                       tabindex="-1"
                       role="dialog"
-                      aria-labelledby="exampleModalLabel"
+                      aria-labelledby="exampleModal<%=cats[i]._id%>"
                       aria-hidden="true"
                     >
                       <div class="modal-dialog" role="document">
@@ -174,7 +174,7 @@
                         >
                           <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel">
-                              give new name
+                              give new name 
                             </h5>
                             <button
                               type="button"
@@ -186,7 +186,7 @@
                             </button>
                           </div>
                           <div class="modal-body">
-                            <form id="editcat">
+                            <form id="editcat<%= cats[i]._id %>">
                               <label for="catogery" style="color: white"
                                 >Enter new name</label
                               >
@@ -201,12 +201,12 @@
                                 name="newname"
                                 style="height: 30px; border-radius: 10"
                               />
-                              <p id="error-message2" style="color: red"></p>
+                              <p id="error-message2<%= cats[i]._id %>" style="color: red"></p>
                               <br />
                               <h1></h1>
                               <button
                                 type="button"
-                                onclick="editCategory()"
+                                onclick="editCategory('<%= cats[i]._id %>')"
                                 class="btn btn-primary"
                               >
                                 Submit
@@ -261,7 +261,7 @@
         if (data.success) {
           window.location.href = "/admin/catogery";
         } else {
-          document.getElementById("error-message").innerHTML =
+          document.getElementById(`error-message`).innerHTML =
             data.errorMessage;
         }
       })
@@ -271,9 +271,9 @@
       });
   }
 
-  function editCategory() {
+  function editCategory(id) {
     console.log("add category");
-    const formData = new FormData(document.getElementById(`editcat`));
+    const formData = new FormData(document.getElementById(`editcat${id}`));
     const urlSearchParams = new URLSearchParams(formData);
 
     fetch("/admin/editcat", {
@@ -294,7 +294,7 @@
         if (data.success) {
           window.location.href = "/admin/catogery";
         } else {
-          document.getElementById("error-message2").innerHTML =
+          document.getElementById(`error-message2${id}`).innerHTML =
             data.errorMessage;
         }
       })

@@ -1,0 +1,171 @@
+const { render } = require("ejs");
+const product = require("../models/productmodel");
+const category = require("../models/catogerymodel");
+const user = require("../models/usermodel");
+const cart = require("../models/cartModel");
+const address = require("../models/addressModel");
+const order = require("../models/orderModel");
+const Offer = require("../models/offerModel");
+
+const loadOffers = async (req, res) => {
+  try {
+    const offers = await Offer.find();
+    res.render("admin/offers", { lay: false, offers });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const loadAddOffers = async (req, res) => {
+  try {
+    res.render("admin/addOffer", { lay: false });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const addOffers = async (req, res) => {
+  try {
+    const name = req.body.name;
+    const offer = req.body.percentage;
+    const actiDate = req.body.actiDate;
+    const expDate = req.body.expDate;
+    const Today = new Date().toISOString().split("T")[0];
+    if (
+      name.trim() === "" &&
+      offer.trim() === "" &&
+      actiDate.trim() === "" &&
+      expDate.trim() === ""
+    ) {
+      return res.json({
+        success: false,
+        message: "please fill all fields",
+      });
+    } else if (expDate < Today) {
+      return res.json({
+        success: false,
+        message: "please increase your expiry date",
+      });
+    } else if (actiDate > expDate) {
+      return res.json({
+        success: false,
+        message: "your expiry date is graterthan activation date",
+      });
+    } else if (offer <= 0 || offer > 100) {
+      return res.json({
+        success: false,
+        message: "please give offer percentage between 1 to 100",
+      });
+    } else {
+      const result = new Offer({
+        name: name,
+        percentages: offer,
+        activeDate: actiDate,
+        expDate: expDate,
+      });
+      await result.save();
+      res.json({ success: true });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const blockOffer = async (req, res) => {
+  try {
+    const id = req.body._id;
+    const offer = await Offer.findOne({ _id: id })
+    if (offer.blocked == 0) {
+      await Offer.updateOne({ _id: id }, { $set: { blocked: 1 } })
+      return res.json({
+        blocked: true,
+        success: true,
+        btntext: "unblock",
+        btncolor: "green",
+      });
+    } else {
+      await Offer.updateOne({ _id: id }, { $set: { blocked: 0 } })
+      return res.json({
+        blocked: true,
+        success: true,
+        btntext: "block",
+        btncolor: "red",
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+const loadEditOffer = async (req, res) => {
+  try {
+    const id = req.query.id;
+    console.log(id);
+    const offer = await Offer.findOne({ _id: id })
+    res.render("admin/editOffer", { lay: false, offer });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
+const editOffer = async (req, res) => {
+  try {
+    const name = req.body.name;
+    const offer = req.body.percentage;
+    const actiDate = req.body.actiDate;
+    const expDate = req.body.expDate;
+    const Today = new Date().toISOString().split("T")[0];
+    if (
+      name.trim() === "" &&
+      offer.trim() === "" &&
+      actiDate.trim() === "" &&
+      expDate.trim() === ""
+    ) {
+      return res.json({
+        success: false,
+        message: "please fill all fields",
+      });
+    } else if (expDate < Today) {
+      return res.json({
+        success: false,
+        message: "please increase your expiry date",
+      });
+    } else if (actiDate > expDate) {
+      return res.json({
+        success: false,
+        message: "your expiry date is graterthan activation date",
+      });
+    } else if (offer <= 0 || offer > 100) {
+      return res.json({
+        success: false,
+        message: "please give offer percentage between 1 to 100",
+      });
+    } else {
+      await Offer.updateOne({ _id: req.body.id }, {
+        $set: {
+          name: name,
+          percentages: offer,
+          activeDate: actiDate,
+          expDate: expDate,
+        }
+      })
+      res.json({ success: true });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+module.exports = {
+  loadOffers,
+  loadAddOffers,
+  addOffers,
+  blockOffer,
+  editOffer,
+  loadEditOffer,
+};

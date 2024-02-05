@@ -1,0 +1,79 @@
+<%- include('../partials/adminheadder') %>
+ 
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card" style="color: white;">
+                    <div class="card-body">
+                        <h4 class="card-title">Add Products</h4>
+                        <p class="card-description">Give product details</p>
+                        <p id="error-message" style="color: red;"></p>
+                        <form class="forms-sample" id="addCoupons">
+                            <div class="form-group">
+                                <label for="exampleInputName1">Coupon Name</label>
+                                <input type="text" class="form-control" name="cpName" placeholder="Coupon Name">
+                                
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail3">Coupon code</label>
+                                <input type="text" class="form-control" name="cpCode" placeholder="Coupon code">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exampleInputEmail3">discount amout</label>
+                                <input type="number" class="form-control" name="cpDisAmount" placeholder="discount amout">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail3">Criteria Amount</label>
+                                <input type="number" class="form-control" name="cpCriAmount" placeholder="Criteria Amount">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail3">Activation Date</label>
+                                <input type="date" class="form-control" name="cpActiveDate" >
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail3">Expiry Date</label>
+                                <input type="date" class="form-control" name="cpExpiryDate" >
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail3">Users Limit</label>
+                                <input type="number" class="form-control" name="cpLimit" placeholder="Users Limit">
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="addCoupon()">add coupon</button>
+                            <button type="button" onclick="window.location.href='coupons'" class="btn btn-danger">cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addCoupon() {
+            const formData = new FormData(document.getElementById("addCoupons"));
+            const urlSearchParams = new URLSearchParams(formData);
+            // var formData = new FormData(document.getElementById("addCoupons"));
+
+            
+            fetch('add-coupons', {
+                method: 'POST',
+                body: urlSearchParams,
+                
+            })
+            .then(response => response.json())
+            .then(data => {
+               if(data.success){
+                document.location='/admin/coupons';
+               }else{
+                document.getElementById("error-message").innerHTML =data.message;
+               }
+                
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                
+            });
+        }
+    </script>
+
+    <%- include('../partials/adminfooter') %>

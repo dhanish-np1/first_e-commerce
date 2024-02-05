@@ -137,9 +137,10 @@ const blockCat = async (req, res) => {
 
 const editCat = async (req, res) => {
   try {
-    
+    console.log('working');
     const categoryId = req.body._id;
     const name = req.body.newname;
+    console.log(categoryId);
     if(name.trim()==""){
       return res.json({
         success: false,

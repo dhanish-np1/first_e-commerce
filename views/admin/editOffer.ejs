@@ -1,0 +1,70 @@
+<%- include('../partials/adminheadder') %>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card" style="color: white">
+                <div class="card-body">
+                    <h4 class="card-title">Add Products</h4>
+                    <p class="card-description">Give product details</p>
+                    <p id="error-message" style="color: red"></p>
+                    <form class="forms-sample" id="editOffers">
+                        <input type="hidden" value="<%=offer._id%>" name="id">
+                        <div class="form-group">
+                            <label for="exampleInputName1">Offer Name</label>
+                            <input value="<%=offer.name%>"type="text" class="form-control" name="name" placeholder="Offer Name" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputName1">Percentage</label>
+                            <input value="<%=offer.percentages%>" type="number" class="form-control" name="percentage" placeholder="Percentage" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputName1"> Activation Date </label>
+                            <input value="<%= typeof offer.activeDate==='string' ?
+                            offer.activeDate.slice(0, 10) :
+                            offer.activeDate.toISOString().slice(0, 10) %>" type="date" class="form-control" name="actiDate" placeholder=" Activation Date " />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputName1"> Expiry Date </label>
+                            <input value="<%= typeof offer.expDate==='string' ?
+                            offer.expDate.slice(0, 10) :
+                            offer.expDate.toISOString().slice(0, 10) %>" type="date" class="form-control" name="expDate" placeholder="Expiry Date " />
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="editOffer()">
+                            add coupon
+                        </button>
+                        <button type="button" onclick="window.location.href='offers'" class="btn btn-danger">
+                            cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function editOffer() {
+        const formData = new FormData(document.getElementById("editOffers"));
+        const urlSearchParams = new URLSearchParams(formData);
+        fetch('editOffer', {
+            method: 'POST',
+            body: urlSearchParams,
+            
+        })
+        .then(response => response.json())
+        .then(data => {
+           if(data.success){
+            document.location='/admin/offers';
+           }else{
+            document.getElementById("error-message").innerHTML =data.message;
+           }
+            
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            
+        });
+    }
+</script>
+
+<%- include('../partials/adminfooter') %>

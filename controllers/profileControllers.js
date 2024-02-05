@@ -342,6 +342,14 @@ const removeAddress =async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 }
+const loadCoupons = async (req, res) => {
+  try {
+    res.render("user/coupons", { lay: true, name: req.session.name });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   loadProfile,
   loadUserDetailes,
@@ -352,6 +360,7 @@ module.exports = {
   addAddress,
   loadOrders,
   ChangePassword,
-  removeAddress
+  removeAddress,
+  loadCoupons
 
 };

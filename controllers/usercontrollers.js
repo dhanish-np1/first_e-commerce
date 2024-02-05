@@ -11,7 +11,7 @@ function otpExpirationTimer() {
     const nul=null
     otp = nul;
     console.log("OTP expired");
-  }, 60000);
+  }, 600000);
 }
 
 
