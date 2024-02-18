@@ -12,6 +12,14 @@ userRouter.get("/login", auth.isLogout, usercontroller.loadLogin);
 userRouter.post("/sign-up", auth.isLogout, usercontroller.insertUser);
 userRouter.post("/login", auth.isLogout, usercontroller.login);
 userRouter.get("/logout", auth.isLogin, usercontroller.userLogout);
+//==================================forgot password======================================
+userRouter.get("/forgot-password",auth.isLogout, usercontroller.loadForgotPassword);
+userRouter.post("/forgot-password",auth.isLogout, usercontroller.forgotPassword);
+userRouter.get("/forgot-password-otp",auth.isLogout, usercontroller.loadOtpForgot);
+userRouter.post("/resendForgototp",auth.isLogout, usercontroller.resendForgotOtp);
+userRouter.post("/varifyForgototp",auth.isLogout, usercontroller.varifyForgotOtp);
+userRouter.get("/resetPassword",auth.isLogout, usercontroller.loadResetPassword);
+userRouter.post("/resetPassword",auth.isLogout, usercontroller.ResetPassword);
 //==================================load pages================================================
 userRouter.get("/home", auth.isLogin, usercontroller.loadHome);
 userRouter.get("/", auth.isLogout, usercontroller.loadHome);
@@ -32,6 +40,7 @@ userRouter.get(
 );
 userRouter.post("/user-details", auth.isLogin, profileController.editDetails);
 userRouter.get("/coupons", auth.isLogin, profileController.loadCoupons);
+userRouter.get("/wallet", auth.isLogin, profileController.loadWallet);
 //==================================Change password====================================================
 userRouter.get(
   "/changePassword",

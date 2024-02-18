@@ -1,3 +1,5 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://kit.fontawesome.com/my id.js" crossorigin="anonymous"></script>
 <!-- breadcrumb -->
 <div class="container">
   <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
@@ -10,7 +12,6 @@
   </div>
 </div>
 
-
 <!-- Shoping Cart -->
 <form class="bg0 p-t-75 p-b-85" id="submitOrder">
   <div class="container">
@@ -20,21 +21,21 @@
           class="m-l-25 m-r--38 m-lr-0-xl"
           style="display: flex; flex-wrap: wrap; gap: 20px; color: black"
         >
-        <a href="/load-add-address?page=/chekout">
-          <div class="addAddressInChek">
-            <img src="/user/icon/Untitled.png" alt="" />
-            <p
-              style="
-                font-size: 30px;
-                font-weight: 700;
-                font-size: 24px;
-                line-height: 32px;
-              "
-            >
-              Add Address
-            </p>
-          </div>
-        </a>
+          <a href="/load-add-address?page=/chekout">
+            <div class="addAddressInChek">
+              <img src="/user/icon/Untitled.png" alt="" />
+              <p
+                style="
+                  font-size: 30px;
+                  font-weight: 700;
+                  font-size: 24px;
+                  line-height: 32px;
+                "
+              >
+                Add Address
+              </p>
+            </div>
+          </a>
           <% for (let i = 0; i < Address?.address.length; i++) { %>
 
           <div class="selectAddress">
@@ -60,7 +61,6 @@
             <p><%=Address.address[i].pin%></p>
           </div>
           <% } %>
-          
         </div>
       </div>
 
@@ -68,7 +68,7 @@
         <div
           class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm"
         >
-          <h4 class="mtext-109 cl2 p-b-30">Total  Items</h4>
+          <h4 class="mtext-109 cl2 p-b-30">Total Items</h4>
 
           <div class="flex-w flex-t bor12 p-b-13">
             <div class="size-208">
@@ -147,7 +147,7 @@
   function submitForm() {
     const formData = new FormData(document.getElementById("submitOrder"));
     const urlSearchParams = new URLSearchParams(formData);
-   
+
     fetch("/placeOrder", {
       method: "POST",
       body: urlSearchParams,
@@ -155,9 +155,9 @@
         "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
       },
     })
-    .then((response) => {
+      .then((response) => {
         if (!response.ok) {
-          console.log(response.status)
+          console.log(response.status);
           throw new Error("Network response was not ok");
         }
         return response.json();
@@ -165,6 +165,9 @@
       .then((data) => {
         if (data.success) {
           window.location.href = "/orderSuccess";
+        } else if(data.order){
+          console.log('hai');
+          razorPayment(data.order);
         } else {
           console.log("working");
           Swal.fire({
@@ -176,8 +179,70 @@
       })
 
       .catch((error) => {
-        console.log(error)
+        console.log(error);
       });
+  }
+
+  function razorPayment(order) {
+    console.log(order);
+    var options = {
+      key: "rzp_test_2lSCohy0YKKPBl", // Enter the Key ID generated from the Dashboard
+      amount: order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      currency: "INR",
+      name: "keyzen Pvt.Ltd", //your business name
+      description: "Test Transaction",
+      order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      handler: function (response) {
+        console.log(response);
+        
+        verifyPayment(response, order);
+        
+      },
+      prefill: {
+        //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+        name: "keyzen Pvt.Ltd", //your customer's name
+        email: "keyzen007store@example.com",
+        contact: "910000000369", //Provide the customer's phone number for better conversion rates
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#c96",
+      },
+    };
+
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+  }
+
+  function verifyPayment(payment, order) {
+    // const amount2 = document.getElementById("totel").innerHTML;
+    // console.log("hjfhf");
+    // console.log(amount2, payment, order);
+    // $.ajax({
+    //   url: "/verify-payment",
+    //   method: "post",
+    //   data: {
+    //     payment: payment,
+    //     amount2: amount2,
+    //     order: order,
+    //   },
+    //   success: (response) => {
+    //     if (response.codsuccess == true) {
+    //       window.location.href = "/orderSuccess";
+    //       // location.href = `/orderSuccess?id=${order_id}`
+    //     } else {
+    //       swal.fire({
+    //         positon: "center",
+    //         icon: "error",
+    //         title: "Payment failed",
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //       });
+    //     }
+    //   },
+    // });
   }
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

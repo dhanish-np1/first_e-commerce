@@ -5,6 +5,14 @@ const user = require("../models/usermodel");
 const cart = require("../models/cartModel");
 const address = require("../models/addressModel");
 const order = require("../models/orderModel");
+const Razorpay = require("razorpay");
+
+// *************************************************
+var instance = new Razorpay({
+  key_id: "rzp_test_2lSCohy0YKKPBl",
+  key_secret: "ekUWYBIr8D5eGhamgHe1ZcDg",
+});
+// *************************************************
 
 const loadProceedCheckout = async (req, res) => {
   try {
@@ -96,6 +104,7 @@ const placeOrder = async (req, res) => {
       });
     }
     const cartData = await cart.findOne({ userId: userId });
+    // to avoid wrong count decreasing
     if (cartData && cartData.products) {
       cartData.products.sort((a, b) => a.productPrice - b.productPrice);
     }
@@ -132,12 +141,6 @@ const placeOrder = async (req, res) => {
 
     let orderProducts = [];
     for (let i = 0; i < productsData.length; i++) {
-      let updatedStock = productsData[i].quantity - cartData.products[i].count;
-      console.log(productsData[i]);
-      await product.updateOne(
-        { _id: productsData[i]._id },
-        { $set: { quantity: updatedStock } }
-      );
       orderProducts.push({
         productId: productsData[i]._id,
         quantity: cartData.products[i].count,
@@ -163,6 +166,8 @@ const placeOrder = async (req, res) => {
         message: "The selected address is not found ",
       });
     } else {
+      const payMethod = PaymentMethod === "COD" ? "placed" : "pending";
+      const statusLevel = payMethod === "placed" ? 1 : 0;
       const cartTotal = await cart
         .findOne({ userId: userId })
         .populate("products.productId");
@@ -170,7 +175,7 @@ const placeOrder = async (req, res) => {
         return total + product.productId.price * product.count;
       }, 0);
       const uniNum = Math.floor(Math.random() * 900000) + 100000;
-      console.log(deliveryAddress);
+
       const Order = new order({
         address: {
           Name: deliveryAddress.address[0].fullname,
@@ -186,13 +191,99 @@ const placeOrder = async (req, res) => {
         userName: req.session.name,
         products: orderProducts,
         deliveryDate: new Date(),
-        paymentMethod: "COD",
+        paymentMethod: PaymentMethod,
         totalAmount: Total,
-        status: "placed",
+        status: payMethod,
+        statusLevel: statusLevel,
       });
       let savedOrder = await Order.save();
-      res.json({ success: true, message: "Order placed successfully" });
-      await cart.updateOne({ userId: userId }, { $set: { products: [] } });
+      const orderId = savedOrder._id;
+      console.log(savedOrder);
+      //after save the order
+      if (savedOrder) {
+        // cash on delivery
+        if (savedOrder.paymentMethod === "COD") {
+          console.log("cod");
+          // decreasing the quntity from the product
+          for (let i = 0; i < productsData.length; i++) {
+            let updatedStock =
+              productsData[i].quantity - cartData.products[i].count;
+            await product.updateOne(
+              { _id: productsData[i]._id },
+              { $set: { quantity: updatedStock } }
+            );
+          }
+          await cart.updateOne({ userId: userId }, { $set: { products: [] } });
+          return res.json({
+            success: true,
+            message: "Order placed successfully",
+          });
+        } else if (savedOrder.paymentMethod === "online_Payment") {
+          console.log("online");
+          // online payment delivery
+          var options = {
+            amount: Total * 100,
+            currency: "INR",
+            receipt: "" + orderId,
+          };
+          const orders = instance.orders.create(options, function (err, order) {
+            res.json({ orders });
+          });
+        } else if (savedOrder.paymentMethod === "Wallet") {
+          // Wallet delivery
+          const userDetails = await user.findOne({ _id: req.session.user_id });
+          const wallet = userDetails.wallet;
+          if (wallet >= Total) {
+            await user.updateOne(
+              { _id: userId },
+              {
+                $inc: { wallet: -Total },
+                $push: {
+                  walletHistory: {
+                    date: new Date(),
+                    amount: Total,
+                    reason: "Purchased Amount Debited.",
+                    cancelOderId: uniNum,
+                  },
+                },
+              },
+              { new: true }
+            );
+
+            await order.findByIdAndUpdate(
+              orderId,
+              { status: "placed", statusLevel: 1 },
+              { new: true }
+            );
+
+            for (let i = 0; i < productsData.length; i++) {
+              let updatedStock =
+                productsData[i].quantity - cartData.products[i].count;
+              await product.updateOne(
+                { _id: productsData[i]._id },
+                { $set: { quantity: updatedStock } }
+              );
+            }
+            await cart.updateOne(
+              { userId: userId },
+              { $set: { products: [] } }
+            );
+            return res.json({
+              success: true,
+              message: "Order placed successfully",
+            });
+          } else {
+            return res.json({
+              success: false,
+              message: "don't have enough money in wallet",
+            });
+          }
+        } else {
+          return res.json({ success: false, message: "somthing went wrong" });
+        }
+      } else {
+        return res.json({ success: false, message: "somthing went wrong" });
+      }
     }
   } catch (error) {
     console.log(error.massage);
@@ -232,8 +323,7 @@ const statusUpdate = async (req, res) => {
     const orders = await order.find();
     return res.json({
       success: true,
-      orders
-      
+      orders,
     });
   } catch (error) {
     console.log(error.massage);
@@ -241,10 +331,9 @@ const statusUpdate = async (req, res) => {
   }
 };
 
-
 const cancelOrder = async (req, res) => {
   try {
-    const orderId=req.body.id;
+    const orderId = req.body.id;
     await order.updateOne(
       { _id: orderId },
       { status: "cancelled", statusLevel: 0 }
@@ -263,5 +352,5 @@ module.exports = {
   placeOrder,
   proceedCheckout,
   statusUpdate,
-  cancelOrder
+  cancelOrder,
 };

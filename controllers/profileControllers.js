@@ -10,11 +10,13 @@ const bcrypt = require("bcrypt");
 
 const loadProfile = async (req, res) => {
   try {
-    console.log(req.session.name);
+    console.log(req.session);
     // const name= await user.find({_id:req.session.user_id});
+    const userData=await user.findOne({_id:req.session.user_id})
     res.render("user/profile", {
       lay: true,
       name: req.session.name,
+      userData
     });
   } catch (error) {
     console.log(error.message);
@@ -350,6 +352,16 @@ const loadCoupons = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+const loadWallet = async (req, res) => {
+  try {
+    const userData=await user.findOne({_id:req.session.user_id})
+    res.render("user/wallet", { lay: true, name: req.session.name,userData});
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   loadProfile,
   loadUserDetailes,
@@ -361,6 +373,7 @@ module.exports = {
   loadOrders,
   ChangePassword,
   removeAddress,
-  loadCoupons
+  loadCoupons,
+  loadWallet
 
 };

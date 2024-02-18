@@ -42,6 +42,8 @@ adminRouter.post(
   multer.productImagesUpload,
   productcontroller.editProduct
 );
+
+
 //=================================catogery=====================================================
 adminRouter.get("/catogery", isAuth.isLogin, admincontroller.loadCatogery);
 adminRouter.post("/addcategory", admincontroller.addCategory);
@@ -68,6 +70,9 @@ adminRouter.post("/addoffers", isAuth.isLogin, offerController.addOffers);
 adminRouter.post("/blockOffers", isAuth.isLogin, offerController.blockOffer);
 adminRouter.get("/editOffer", isAuth.isLogin, offerController.loadEditOffer);
 adminRouter.post("/editOffer", isAuth.isLogin, offerController.editOffer);
+adminRouter.get("/product-Offer", isAuth.isLogin, offerController.loadProductOffers);
+adminRouter.post("/product-Offer", isAuth.isLogin, offerController.addProductOffers);
+adminRouter.post("/remove-Offer", isAuth.isLogin, offerController.removeProductOffer);
 //=================================banner=====================================================
 adminRouter.get("/banner", isAuth.isLogin, bannerController.loadBanner);
 

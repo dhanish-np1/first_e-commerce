@@ -35,7 +35,8 @@ const loadAddProduct = async (req, res) => {
 
 const loadProducts = async (req, res) => {
   try {
-    const products = await product.find();
+    const products = await product.find().populate("offer");
+    console.log(products)
     res.render("admin/product", { lay: false, products: products });
   } catch (error) {
     console.log(error);
@@ -271,6 +272,8 @@ const editProduct = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 
 module.exports = {
   loadAddProduct,

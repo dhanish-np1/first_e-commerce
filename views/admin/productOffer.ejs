@@ -1,0 +1,74 @@
+<%- include('../partials/adminheadder') %>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card" style="color: white">
+        <div class="card-body">
+          <h4 class="card-title">Add offer</h4>
+          <img
+            style="height: 150px; width: 150px"
+            src="/products/crop/<%=productDetail.images.image1%>"
+            alt=""
+          />
+          <p><%=productDetail.name%></p>
+          <form class="forms-sample" id="addOffers">
+            <label for="">avilable Offers</label>
+            <input type="hidden" value="<%=productDetail._id%>" name="productId">
+            <% for (let i = 0; i < offer.length; i++) { %>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="offerId"
+                value="<%=offer[i]._id%>"
+                id="flexRadioDefault1<%=i%>"
+              />
+              <label style="color: white;" class="form-check-label" for="flexRadioDefault1<%=i%>">
+                <%=offer[i].name%> = <%=offer[i].percentages%>%
+              </label>
+            </div>
+            <% } %>
+
+            <br />
+            <div id="error-message" style="color: red"></div>
+            <button type="button" class="btn btn-primary" onclick="addOffer()">
+              add offer
+            </button>
+            <button
+              type="button"
+              onclick="window.location.href='products'"
+              class="btn btn-danger"
+            >
+              cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addOffer() {
+    const formData = new FormData(document.getElementById("addOffers"));
+    const urlSearchParams = new URLSearchParams(formData);
+    fetch("product-Offer", {
+      method: "POST",
+      body: urlSearchParams,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          document.location = "/admin/products";
+        } else {
+          console.log('ejldjf');
+          document.getElementById("error-message").innerHTML = data.message;
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+</script>
+
+<%- include('../partials/adminfooter') %>

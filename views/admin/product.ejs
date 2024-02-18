@@ -1,92 +1,142 @@
 <%- include('../partials/adminheadder') %>
 
-
 <div class="content-wrapper">
-    <div class="page-header">
+  <div class="page-header">
+    <h2>fgf</h2>
+  </div>
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Products</h4>
+          <a href="/admin/addproducts"
+            ><button
+              style="border-radius: 10%; background-color: green; border: 0cap"
+            >
+              Add product
+            </button></a
+          >
 
-        <h2>fgf</h2>
-    </div>
-    <div class="row">
-
-        <div class="col-lg-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Products</h4>
-                    <a href="/admin/addproducts"><button style=" border-radius: 10%; background-color: green; border: 0cap;">Add product</button></a>
-                    
+          <div class="table-responsive">
+            <table class="table table-striped table-dark" id="tableContainer">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>name</th>
+                  <th>Image</th>
+                  <th>catogery</th>
+                  <th>stock</th>
+                  <th>price</th>
+                  <th>Offer</th>
+                  <th>Offer action</th>
+                  <th>status</th>
+                  <th>action</th>
+                  <th>edit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (products.length>0) { %> <% for (let i=0; i <
+                products.length; i++) { %>
+                <tr>
+                  <td><%= i+1 %></td>
+                  <td><%=products[i].name%></td>
+                  <td>
+                    <img
+                      src="/products/crop/<%=products[i].images.image1%>"
+                      alt=""
+                    />
+                  </td>
+                  <td><%=products[i].category%></td>
+                  <td><%=products[i].quantity%></td>
+                  <td><%=products[i].price%></td>
+                  <td>
+                    <% if (products[i].offer==null) { %> 0% <% } else { %>
+                    <%=products[i].offer.percentages%>% <% } %>
+                  </td>
+                  <td>
+                    <% if (products[i].offer==null) { %>
+                    <button
+                      onclick="window.location.href = 'product-Offer?id=<%=products[i]._id%>'"
+                      type="button"
+                      class="btn btn-primary"
+                    >
+                      add offer
+                    </button>
+                    <% } else { %>
+                    <button
+                      type="button"
+                      onclick="removeOffer('<%=products[i]._id%>')"
+                      class="btn btn-danger"
+                    >
+                      remove
+                    </button>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (products[i].blocked===0) { %>
+                    <p id="status<%=products[i]._id%>" style="color: green">
+                      active
                     </p>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-dark">
-                            <thead>
-                                <tr>
-                                    <th> No </th>
-                                    <th> name </th>
-                                    <th> Image </th>
-                                    <th> catogery </th>
-                                    <th> stock </th>
-                                    <th> price</th>
-                                    <th> status</th>
-                                    <th> action</th>
-                                    <th> edit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                    <% if (products.length>0) { %>
-                                        <% for (let i = 0; i < products.length; i++) { %>
-                                            <tr>
-                                                <td><%= i+1 %></td>
-                                                <td><%=products[i].name%></td>
-                                                <td><img src="/products/crop/<%=products[i].images.image1%>" alt=""></td>
-                                                <td><%=products[i].category%></td>
-                                                <td><%=products[i].quantity%></td>
-                                                <td><%=products[i].price%></td>
-                                                <td>
-                                                    <% if (products[i].blocked === 0) { %>
-                                                        <p id="status<%=products[i]._id%>" style="color: green">active</p>
-                                                      <% } else { %>
-                                                        <p id="status<%=products[i]._id%>" style="color: red">blocked</p>
-                                                      <% } %>
-                                                </td>
-                                                
-                                                    <% if (products[i].blocked === 0) { %>
-                                                        <td>
-                                                            <button style="background-color: red;" type="button" id="block<%=products[i]._id%>"  onclick="blockProduct('<%=products[i]._id%>')" class="btn btn-danger">Block</button>
-                                                          </td>
-                                                          <% } else { %>
-                                                          <td>
-                                                            <button style="background-color: green;" type="button" id="block<%=products[i]._id%>" onclick="blockProduct('<%=products[i]._id%>')" class="btn btn-success">unblock</button>
-                                                          </td>
-                                                      <% } %>
-                                                
-                                                <td><a href="/admin/loadeditproduct?id=<%= products[i]._id %>"
-                                                    class="badge badge-primary">edit</a></td>
-                                            </tr>
-                                          <% } %>
-                                        
-                                      <% } else { %>
-                                        
-                                        <tr>
-                                            <td colspan="9" style="text-align: center;">Product not found</td>
-                                        </tr>
-                                      <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                    <% } else { %>
+                    <p id="status<%=products[i]._id%>" style="color: red">
+                      blocked
+                    </p>
+                    <% } %>
+                  </td>
 
+                  <% if (products[i].blocked===0) { %>
+                  <td>
+                    <button
+                      style="background-color: red"
+                      type="button"
+                      id="block<%=products[i]._id%>"
+                      onclick="blockProduct('<%=products[i]._id%>')"
+                      class="btn btn-danger"
+                    >
+                      Block
+                    </button>
+                  </td>
+                  <% } else { %>
+                  <td>
+                    <button
+                      style="background-color: green"
+                      type="button"
+                      id="block<%=products[i]._id%>"
+                      onclick="blockProduct('<%=products[i]._id%>')"
+                      class="btn btn-success"
+                    >
+                      unblock
+                    </button>
+                  </td>
+                  <% } %>
+
+                  <td>
+                    <a
+                      href="/admin/loadeditproduct?id=<%= products[i]._id %>"
+                      class="badge badge-primary"
+                      >edit</a
+                    >
+                  </td>
+                </tr>
+                <% } %> <% } else { %>
+
+                <tr>
+                  <td colspan="9" style="text-align: center">
+                    Product not found
+                  </td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
         </div>
-
-
-
-
+      </div>
     </div>
-
-
+  </div>
 </div>
 
 <script>
-    function blockProduct(userId) {
+  function blockProduct(userId) {
     const statusCell = document.getElementById(`status${userId}`);
     const btn = document.getElementById(`block${userId}`);
     fetch(`/admin/blockproduct`, {
@@ -103,26 +153,52 @@
         return response.json();
       })
       .then((data) => {
-      if(data.blocked){
-        statusCell.innerHTML=data.statustext;
-        statusCell.style.color = data.textcolor;
-        btn.innerHTML=data.btntext;
-        btn.style.backgroundColor=data.btncolor;
-        btn.style.border=0;
-      }else{
-        statusCell.innerHTML=data.statustext;
-        statusCell.style.color = data.textcolor;
-        btn.innerHTML=data.btntext;
-        btn.style.backgroundColor=data.btncolor;
-      }
-       
-    })
-      
+        if (data.blocked) {
+          statusCell.innerHTML = data.statustext;
+          statusCell.style.color = data.textcolor;
+          btn.innerHTML = data.btntext;
+          btn.style.backgroundColor = data.btncolor;
+          btn.style.border = 0;
+        } else {
+          statusCell.innerHTML = data.statustext;
+          statusCell.style.color = data.textcolor;
+          btn.innerHTML = data.btntext;
+          btn.style.backgroundColor = data.btncolor;
+        }
+      })
+
       .catch((error) => {
         console.error(error);
       });
   }
 </script>
+<script>
+  function removeOffer(proId) {
+    fetch(`/admin/remove-Offer`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ proId }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to block user with ID ${proId}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          location.reload();
+        }
+      })
+
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+
+</script>
 
 <%- include('../partials/adminfooter') %>
-           

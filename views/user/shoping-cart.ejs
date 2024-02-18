@@ -28,7 +28,14 @@
               />
               <div>
                 <p class="cartText"><%= product.productId.name %></p>
-                <p class="cartText">price: <%= product.productId.price %></p>
+                <%if(product.productId.discount!==null){%>
+                  <div style="display: flex;"><p class="cartText" >price: </p><p style="text-decoration: line-through; color: red;" class="cartText"><%= product.productId.price %></p>
+                    <p class="cartText">&nbsp; <%= product.productId.discount %></p>
+                  </div>
+                  <%}else{%>
+                    <p class="cartText">price: <%= product.productId.price %></p>
+                    <%}%>
+                
                 <% if (product.productId.blocked!==0) { %>
                   <p style="color: red; padding-top: 3px;">This item no longer for sale </p>
               <% } else if (product.productId.quantity==0) { %>
@@ -119,7 +126,7 @@
             </div>
 
             <div class="size-209">
-              <span class="mtext-110 cl2">&#x20B9; 00.00 </span>
+              <span class="mtext-110 cl2">&#x20B9; <%=cartTotal-totalAmount%> </span>
             </div>
           </div>
 
@@ -129,7 +136,7 @@
             </div>
 
             <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2"> &#x20B9;<%=cartTotal%> </span>
+              <span class="mtext-110 cl2"> &#x20B9;<%=totalAmount%> </span>
             </div>
           </div>
 

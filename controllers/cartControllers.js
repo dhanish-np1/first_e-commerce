@@ -12,18 +12,47 @@ const loadCart = async (req, res) => {
     const cartData = await cart
       .findOne({ userId: userId })
       .populate("products.productId");
-    let cartTotal = cartData.products.reduce((total, product) => {
-      return total + product.productId.price * product.count;
-    }, 0);
-    const productCount = cartData?.products.length;
-    console.log(cartData.products);
-    res.render("user/shoping-cart", {
-      lay: true,
-      cartData,
-      productCount,
-      cartTotal,
-      name: req.session.name,
-    });
+    let totalAmount = 0;
+    if (cartData) {
+      let cartTotal = cartData.products.reduce((total, product) => {
+        return total + product.productId.price * product.count;
+      }, 0);
+      // calculating discount amout
+      for (let i = 0; i < cartData.products.length; i++) {
+        let cartItem = cartData.products[i];
+        
+        if (
+          cartItem.productId.discount !== null &&
+          cartItem.productId.discount !== undefined
+        ) {
+          let productprice = cartItem.productId.discount;
+          totalAmount += cartItem.count * productprice;
+        } else {
+          let productprice = cartItem.productId.price;
+          totalAmount += cartItem.count * productprice;
+        }
+        
+      }
+      console.log(totalAmount);
+      const productCount = cartData?.products.length;
+      console.log(cartData.products);
+      res.render("user/shoping-cart", {
+        lay: true,
+        cartData,
+        productCount,
+        cartTotal,
+        totalAmount,
+        name: req.session.name,
+      });
+    } else {
+      res.render("user/shoping-cart", {
+        lay: true,
+        cartData:null,
+        productCount:0,
+        cartTotal:0,
+        name: req.session.name,
+      });
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -65,7 +94,7 @@ const addToCart = async (req, res) => {
       (product) => product.productId === proId
     );
     const updatedQuantity = updatedProduct ? updatedProduct.count : 0;
-    if (updatedQuantity + 1 > productQuantity ||updatedQuantity + 1 >5) {
+    if (updatedQuantity + 1 > productQuantity || updatedQuantity + 1 > 5) {
       return res.json({
         success: true,
         message: "Quantity limit reached!",

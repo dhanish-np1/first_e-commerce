@@ -1,4 +1,5 @@
 const { render } = require("ejs");
+const mongoose = require("mongoose");
 const product = require("../models/productmodel");
 const category = require("../models/catogerymodel");
 const user = require("../models/usermodel");
@@ -77,9 +78,9 @@ const addOffers = async (req, res) => {
 const blockOffer = async (req, res) => {
   try {
     const id = req.body._id;
-    const offer = await Offer.findOne({ _id: id })
+    const offer = await Offer.findOne({ _id: id });
     if (offer.blocked == 0) {
-      await Offer.updateOne({ _id: id }, { $set: { blocked: 1 } })
+      await Offer.updateOne({ _id: id }, { $set: { blocked: 1 } });
       return res.json({
         blocked: true,
         success: true,
@@ -87,7 +88,7 @@ const blockOffer = async (req, res) => {
         btncolor: "green",
       });
     } else {
-      await Offer.updateOne({ _id: id }, { $set: { blocked: 0 } })
+      await Offer.updateOne({ _id: id }, { $set: { blocked: 0 } });
       return res.json({
         blocked: true,
         success: true,
@@ -104,14 +105,13 @@ const loadEditOffer = async (req, res) => {
   try {
     const id = req.query.id;
     console.log(id);
-    const offer = await Offer.findOne({ _id: id })
+    const offer = await Offer.findOne({ _id: id });
     res.render("admin/editOffer", { lay: false, offer });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
-}
-
+};
 
 const editOffer = async (req, res) => {
   try {
@@ -146,21 +146,91 @@ const editOffer = async (req, res) => {
         message: "please give offer percentage between 1 to 100",
       });
     } else {
-      await Offer.updateOne({ _id: req.body.id }, {
-        $set: {
-          name: name,
-          percentages: offer,
-          activeDate: actiDate,
-          expDate: expDate,
+      await Offer.updateOne(
+        { _id: req.body.id },
+        {
+          $set: {
+            name: name,
+            percentages: offer,
+            activeDate: actiDate,
+            expDate: expDate,
+          },
         }
-      })
+      );
       res.json({ success: true });
     }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
+
+const loadProductOffers = async (req, res) => {
+  try {
+    const id = req.query.id;
+    const offer = await Offer.find({blocked:0});
+    const productDetail = await product.findOne({ _id: id });
+    console.log(productDetail);
+    res.render("admin/productOffer", { lay: false, productDetail, offer });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const addProductOffers = async (req, res) => {
+  try {
+    console.log("working");
+    console.log(req.body);
+    const offerId = req.body.offerId;
+    const proId = req.body.productId;
+    console.log(offerId);
+    if (offerId == undefined) {
+      return res.json({
+        success: false,
+        message: "please select any offer",
+      });
+    } else {
+      const { ObjectId } = mongoose.Types;
+      const convertedOfferId = new ObjectId(offerId);
+      const offerData = await Offer.findOne({ _id: convertedOfferId });
+      const productData = await product.findOne({ _id: proId });
+      productData.offer=convertedOfferId;
+      productData.discount= productData.price -(offerData.percentages * productData.price)/100;
+      const saveOffer= await productData.save();
+      if(saveOffer){
+        return res.json({
+          success: true,
+          message: "",
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+const removeProductOffer = async (req, res) => {
+  try {
+    const proId=req.body.proId;
+    const proData= await product.findOne({_id:proId})
+    if(proData){
+      proData.offer=null;
+      proData.discount=null;
+      await proData.save()
+      return res.json({
+        success: true,
+        
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   loadOffers,
   loadAddOffers,
@@ -168,4 +238,7 @@ module.exports = {
   blockOffer,
   editOffer,
   loadEditOffer,
+  loadProductOffers,
+  addProductOffers,
+  removeProductOffer
 };

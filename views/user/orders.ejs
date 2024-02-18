@@ -11,7 +11,7 @@
 </div>
 
 <div style="padding-bottom: 25px; padding-top: 25px">
-  <% if (1==1) { %>
+  <% if (orders.length!==0) { %>
   <div class="container listOrders">
     <% for (let i = 0; i < orders.length; i++) { %>
     <div class="orders">
@@ -74,6 +74,7 @@
     <% } %>
   </div>
   <% } else { %>
+   
   <div
     style="
       height: 300px;
