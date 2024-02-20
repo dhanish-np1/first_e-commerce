@@ -61,20 +61,95 @@
       </div>
       <hr style="border: none; border-top: 1px solid #000" />
       <% } %>
-      <div>
+      <div style="display: flex; gap: 100px">
         <!-- <button type="button" class="btn btn-primary">view details</button> -->
-        <% if (orders[i].status!=='cancelled' && orders[i].status!=='delivered') { %>
-          <button type="button" class="btn btn-danger" onclick="cancelOrders('<%=orders[i]._id%>')">
-            Cancel order
-          </button>
-      <% } %>
-        
+        <% if (orders[i].status!=='cancelled' &&
+        orders[i].status!=='delivered'&& orders[i].status!=='pending' && orders[i].status!=='Returned') { %>
+        <button
+          type="button"
+          class="btn btn-danger"
+          onclick="cancelOrders('<%=orders[i]._id%>')"
+        >
+          Cancel order
+        </button>
+        <% } %> <% if (orders[i].status=='delivered') { %>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-toggle="modal"
+          data-target="#cancel<%=orders[i]._id%>"
+        >
+          return product
+        </button>
+
+        <!-- modal -->
+        <div
+          class="modal fade"
+          id="cancel<%=orders[i]._id%>"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="exampleModalCenterTitle"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div
+              class="modal-content"
+              style="
+                background-color: rgb(151, 150, 150);
+                border: solid 1px;
+                color: black;
+              "
+            >
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">
+                  product return
+                </h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form action="" id="return<%=orders[i]._id%>">
+                  <input type="text" hidden name="ordId" value="<%=orders[i]._id%>">
+                  <textarea
+                  style="border: 1px solid black; border: 10px; height: 60px; width: 100%;"
+                  id="feedback"
+                  name="reason"
+                  placeholder="Enter your feedback here"
+                  required
+                ></textarea>
+                </form>
+                
+              </div>
+              <p style="color: red;" id="error-message"></p>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="button" class="btn btn-primary" onclick="returnOrders('<%=orders[i]._id%>')">return</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } %>
+        <p style="color: black; font-size: 20px">
+          Total : <%=orders[i].totalAmount%>
+        </p>
       </div>
     </div>
     <% } %>
   </div>
   <% } else { %>
-   
+
   <div
     style="
       height: 300px;
@@ -120,7 +195,7 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              id:id,
+              id: id,
               // reason:inputValue,
             }),
           });
@@ -143,5 +218,38 @@
         }
       }
     });
+  }
+</script>
+
+<script>
+  function returnOrders(id) {
+    const formData = new FormData(document.getElementById(`return${id}`));
+    const urlSearchParams = new URLSearchParams(formData);
+   
+    fetch("/returnOrders", {
+      method: "POST",
+      body: urlSearchParams,
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+    })
+    .then((response) => {
+      if (!response.ok) {
+        console.log(response.status)
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+      .then((data) => {
+        if (data.success) {
+          location.reload();
+        } else {
+          document.getElementById("error-message").innerHTML =data.message;
+        }
+      })
+
+      .catch((error) => {
+        console.log(error)
+      });
   }
 </script>

@@ -43,7 +43,7 @@
                                 <select name="category" id="categorySelect">
                                     <% if(category.length> 0){
                                         for(let i=0; i<category.length; i++){ %>
-                                            <option value="<%= category[i].name %>">
+                                            <option value="<%= category[i].name %>" <% if (category[i].name == products.category) { %> selected <% } %>>
                                                 <%= category[i].name %>
                                             </option>
                                             <% } } else { %>

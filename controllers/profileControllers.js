@@ -41,7 +41,6 @@ const loadUserDetailes = async (req, res) => {
 const editDetails = async (req, res) => {
   try {
     const name = req.body.name;
-    const email = req.body.email;
     const number = req.body.number;
     if (name.length <= 2) {
       return res.json({
@@ -49,19 +48,13 @@ const editDetails = async (req, res) => {
         errorMessage: "name should be more than 2 charectors",
       });
     } else {
-      if (email.trim() === "" && number.trim() === "" && name.trim() === "") {
+      if ( number.trim() === "" && name.trim() === "") {
         return res.json({
           success: false,
           errorMessage: "some field is empty",
         });
       } else {
-        const emailPattern = /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-        if (!emailPattern.test(email)) {
-          return res.json({
-            success: false,
-            errorMessage: "please give a valid email Id",
-          });
-        } else {
+        
           const mobilePattern = /^\d{10}$/;
           if (!mobilePattern.test(number) || number === "0000000000") {
             return res.json({
@@ -74,7 +67,6 @@ const editDetails = async (req, res) => {
               {
                 $set: {
                   fullname: name,
-                  email: email,
                   number: number,
                 },
               }
@@ -85,7 +77,7 @@ const editDetails = async (req, res) => {
               name: req.session.name,
             });
           }
-        }
+        
       }
     }
   } catch (error) {

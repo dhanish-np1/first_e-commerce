@@ -6,6 +6,7 @@ const cart = require("../models/cartModel");
 const address = require("../models/addressModel");
 const order = require("../models/orderModel");
 const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
 // *************************************************
 var instance = new Razorpay({
@@ -25,12 +26,28 @@ const loadProceedCheckout = async (req, res) => {
     let cartTotal = cartData.products.reduce((total, product) => {
       return total + product.productId.price * product.count;
     }, 0);
+    let totalAmount = 0;
+    for (let i = 0; i < cartData.products.length; i++) {
+      let cartItem = cartData.products[i];
+
+      if (
+        cartItem.productId.discount !== null &&
+        cartItem.productId.discount !== undefined
+      ) {
+        let productprice = cartItem.productId.discount;
+        totalAmount += cartItem.count * productprice;
+      } else {
+        let productprice = cartItem.productId.price;
+        totalAmount += cartItem.count * productprice;
+      }
+    }
     res.render("user/checkout", {
       lay: true,
       cartData,
       productCount,
       Address,
       cartTotal,
+      totalAmount,
       name: req.session.name,
     });
   } catch (error) {
@@ -103,7 +120,9 @@ const placeOrder = async (req, res) => {
         message: "Address and paymentMethod are required fields.",
       });
     }
-    const cartData = await cart.findOne({ userId: userId });
+    const cartData = await cart
+      .findOne({ userId: userId })
+      .populate("products.productId");
     // to avoid wrong count decreasing
     if (cartData && cartData.products) {
       cartData.products.sort((a, b) => a.productPrice - b.productPrice);
@@ -159,23 +178,32 @@ const placeOrder = async (req, res) => {
         "address.$": 1, // This projects only the matched address in the result
       }
     );
-
+    let totalamounts = 0;
+    for (let i = 0; i < cartData.products.length; i++) {
+      let cartItem = cartData.products[i];
+      if (
+        cartItem.productId.discount !== null &&
+        cartItem.productId.discount !== undefined
+      ) {
+        let productprice = cartItem.productId.discount;
+        totalamounts += cartItem.count * productprice;
+      } else {
+        let productprice = cartItem.productId.price;
+        totalamounts += cartItem.count * productprice;
+      }
+    }
     if (!deliveryAddress) {
       return res.json({
         success: false,
         message: "The selected address is not found ",
       });
     } else {
+      console.log(totalamounts);
       const payMethod = PaymentMethod === "COD" ? "placed" : "pending";
       const statusLevel = payMethod === "placed" ? 1 : 0;
-      const cartTotal = await cart
-        .findOne({ userId: userId })
-        .populate("products.productId");
-      let Total = cartTotal.products.reduce((total, product) => {
-        return total + product.productId.price * product.count;
-      }, 0);
       const uniNum = Math.floor(Math.random() * 900000) + 100000;
 
+      console.log("qq");
       const Order = new order({
         address: {
           Name: deliveryAddress.address[0].fullname,
@@ -192,13 +220,14 @@ const placeOrder = async (req, res) => {
         products: orderProducts,
         deliveryDate: new Date(),
         paymentMethod: PaymentMethod,
-        totalAmount: Total,
+        totalAmount: totalamounts,
         status: payMethod,
         statusLevel: statusLevel,
       });
+
       let savedOrder = await Order.save();
       const orderId = savedOrder._id;
-      console.log(savedOrder);
+
       //after save the order
       if (savedOrder) {
         // cash on delivery
@@ -221,27 +250,27 @@ const placeOrder = async (req, res) => {
         } else if (savedOrder.paymentMethod === "online_Payment") {
           console.log("online");
           // online payment delivery
-          var options = {
-            amount: Total * 100,
+          const options = {
+            amount: totalamounts * 100,
             currency: "INR",
             receipt: "" + orderId,
           };
           const orders = instance.orders.create(options, function (err, order) {
-            res.json({ orders });
+            res.json({ success: false, order });
           });
         } else if (savedOrder.paymentMethod === "Wallet") {
           // Wallet delivery
           const userDetails = await user.findOne({ _id: req.session.user_id });
           const wallet = userDetails.wallet;
-          if (wallet >= Total) {
+          if (wallet >= totalamounts) {
             await user.updateOne(
               { _id: userId },
               {
-                $inc: { wallet: -Total },
+                $inc: { wallet: -totalamounts },
                 $push: {
                   walletHistory: {
                     date: new Date(),
-                    amount: Total,
+                    amount: totalamounts,
                     reason: "Purchased Amount Debited.",
                     cancelOderId: uniNum,
                   },
@@ -297,7 +326,7 @@ const statusUpdate = async (req, res) => {
     const orderData = await order.findOne({ _id: orderId });
     const userId = orderData.userId;
     const statusLevel = req.body.level;
-    const amount = orderData.totalAmount;
+    const amount = orderData.totalAmounts;
     const products = orderData.products;
     console.log(statusLevel);
     console.log(orderId);
@@ -346,6 +375,154 @@ const cancelOrder = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+const varifyPayment = async (req, res) => {
+  try {
+    console.log(req.body);
+    const userId = req.session.user_id;
+    let orderId = req.body.order.receipt;
+    const cartData = await cart
+      .findOne({ userId: userId })
+      .populate("products.productId");
+    const details = req.body;
+    const hmac = crypto.createHmac("sha256", "YgtIcUty8k3ACrcGRnadqtK4");
+    const dataToHash =
+      details.payment.razorpay_order_id +
+      "|" +
+      details.payment.razorpay_payment_id;
+    hmac.update(dataToHash);
+    const hmacValue = hmac.digest("hex");
+    console.log(`${details.payment.razorpay_signature}`);
+    console.log(`${hmacValue}`);
+
+    if (hmacValue !== details.payment.razorpay_signature) {
+      console.log("working");
+      const productsData = await product
+        .find({
+          _id: { $in: cartData.products.map((item) => item.productId) },
+        })
+        .sort({ price: 1 });
+      //update quantity
+      for (let i = 0; i < productsData.length; i++) {
+        let updatedStock =
+          productsData[i].quantity - cartData.products[i].count;
+        await product.updateOne(
+          { _id: productsData[i]._id },
+          { $set: { quantity: updatedStock } }
+        );
+      }
+      // count total and discount
+      let totalamounts = 0;
+      for (let i = 0; i < cartData.products.length; i++) {
+        let cartItem = cartData.products[i];
+        if (
+          cartItem.productId.discount !== null &&
+          cartItem.productId.discount !== undefined
+        ) {
+          let productprice = cartItem.productId.discount;
+          totalamounts += cartItem.count * productprice;
+        } else {
+          let productprice = cartItem.productId.price;
+          totalamounts += cartItem.count * productprice;
+        }
+      }
+      const Total = totalamounts;
+      await order.findByIdAndUpdate(
+        { _id: details.order.receipt },
+        {
+          status: "placed",
+          statusLevel: 1,
+          paymentId: details.payment.razorpay_payment_id,
+        },
+        { new: true }
+      );
+
+      const orderid = details.order.receipt;
+      await cart.updateOne({ userId: userId }, { $set: { products: [] } });
+      return res.json({
+        success: true,
+        orderid,
+        message: "Order placed successfully",
+      });
+    } else {
+      console.log("false");
+      await order.findByIdAndDelete({ _id: details.order.receipt });
+      res.json({ success: false });
+    }
+  } catch (error) {
+    console.log(error.massage);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const returnOrder = async (req, res) => {
+  try {
+    console.log(req.body);
+    const reason = req.body.reason;
+    if (reason.trim() == '') {
+      return res.json({ success: false, message: "please add your reason" })
+    }
+    const orderId = req.body.ordId;
+    const orderData = await order.findOne({ _id: orderId });
+    const amount = orderData.totalAmount;
+    const products = orderData.products;
+    const result = await user.updateOne(
+      { _id: req.session.user_id },
+      {
+        $inc: { wallet: amount },
+        $push: {
+          walletHistory: {
+            date: new Date(),
+            amount: amount,
+            reason: reason,
+            cancelOderId: orderData.uniqueId,
+          },
+        },
+      }
+    );
+
+    if (result) {
+      const updatedData = await order.updateOne(
+        { _id: orderId },
+        {
+          $set: {
+            returnReason: reason,
+            status: "Returned",
+            statusLevel: 0,
+          },
+        }
+      );
+      console.log('4');
+      if (updatedData) {
+        for (let i = 0; i < products.length; i++) {
+          let pro = products[i].productId;
+          let count = products[i].quantity;
+          await product.updateOne({ _id: pro }, { $inc: { quantity: count } });
+        }
+      }
+      return res.json({ success: true })
+    } else {
+      console.log("not");
+    }
+  } catch (error) {
+    console.log(error.massage);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const downloadInvoice = async (req, res) => {
+  try {
+    const orderId=req.query.id;
+    const userData = user.findOne({_id:req.session.user_id})
+    const orderData = order.findOne({_id:orderId}).populate("products.productId")
+    console.log(userData);
+    console.log(orderData);
+      res.render("user/invoice", { lay: false, name: req.session.name,userData,orderData })
+  } catch (error) {
+    console.log(error.massage);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   loadProceedCheckout,
   loadSuccess,
@@ -353,4 +530,7 @@ module.exports = {
   proceedCheckout,
   statusUpdate,
   cancelOrder,
+  varifyPayment,
+  returnOrder,
+  downloadInvoice
 };

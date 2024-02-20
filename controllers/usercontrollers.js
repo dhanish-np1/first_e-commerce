@@ -17,7 +17,7 @@ function otpExpirationTimer() {
 // =====================loadshop==================
 const loadShop = async (req, res) => {
   try {
-    const products = await product.find({blocked:0}).populate("offer");
+    const products = await product.find({ blocked: 0 }).populate("offer");
     res.render("user/product", {
       lay: true,
       products: products,
@@ -134,6 +134,32 @@ const insertUser = async (req, res) => {
                     errorMessage: "this email is already exist",
                   });
                 } else {
+                  const charset =
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                  let result = "";
+                  const charsetLength = charset.length;
+
+                  const length = 8;
+
+                  for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(
+                      Math.random() * charsetLength
+                    );
+                    result += charset.charAt(randomIndex);
+                  }
+                  let refCode = req.body.refCode;
+                  console.log('working');
+                  if(refCode.trim()!==""){
+                    console.log("why");
+                    const ref = await user.findOne({referralCode:refCode});
+                    if(!ref){
+                      return res.json({
+                        success: false,
+                        errorMessage: "this referal code dose not exist",
+                      });
+                    }
+                  }
+                  console.log('work2');
                   const spassword = await securePassword(req.body.password);
                   const User = new user({
                     fullname: req.body.name,
@@ -142,6 +168,8 @@ const insertUser = async (req, res) => {
                     password: spassword,
                     is_verified: 0,
                     is_block: 0,
+                    referralCode:result,
+                    usedReferralCode:refCode
                   });
 
                   const savedUser = await User.save(); // Save the user to the databas
@@ -184,7 +212,6 @@ const loadHome = async (req, res) => {
     console.log(req.session);
     const products = await product.find({ blocked: 0 }).populate("offer");
     const log = req.session.user_id;
-    console.log(products);
     res.render("user/home", {
       lay: true,
       islogin: log,
@@ -218,6 +245,7 @@ const loadVarify = async (req, res) => {
 const sendVerifyMail = async (name, email, otp) => {
   try {
     console.log("mail sent");
+    console.log(otp);
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
@@ -298,13 +326,18 @@ const otpVarify = async (req, res) => {
     const userId = req.session.userId;
     req.session.user_id = console.log(otp);
     if (enterdotp === otp) {
-      // Update user's is_verified status to indicate successful verification
       await user.updateOne({ _id: userId }, { $set: { is_verified: 1 } });
       // Clear session variables after successful verification
       req.session.name = true;
       req.session.user_id = userId;
       req.session.userId = null;
       req.session.userOTP = null;
+      const userData= await user.findOne({_id:userId})
+      if (userData.usedReferralCode.length>4) {
+        await user.updateOne({ referralCode: userData.usedReferralCode }, { $inc: { wallet: 50 } });
+      await user.updateOne({ _id: userId }, { $inc: { wallet: 50 } });
+        
+      }
       return res.json({
         success: true,
         message: "otp matched",
@@ -465,7 +498,7 @@ const loadResetPassword = async (req, res) => {
 
 const ResetPassword = async (req, res) => {
   try {
-    console.log('working');
+    console.log("working");
     const password = req.body.password;
     const conPassword = req.body.conPassword;
     const userData = await user.findOne({ email: req.session.email });

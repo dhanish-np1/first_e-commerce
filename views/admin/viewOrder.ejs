@@ -15,64 +15,133 @@
                         <div class="mainOrder">
                             <div class="order-det">
                                 <table class="table table-striped table-dark">
-                                    
+
                                     <tbody>
                                         <tr>
                                             <td>Name:</td>
-                                            <td><%=orders.address.Name%></td>
+                                            <td>
+                                                <%=orders.address.Name%>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>city:</td>
-                                            <td><%=orders.address.city%></td>
+                                            <td>
+                                                <%=orders.address.city%>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>state:</td>
-                                            <td><%=orders.address.state%></td>
+                                            <td>
+                                                <%=orders.address.state%>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>pin:</td>
-                                            <td><%=orders.address.pin%></td>
+                                            <td>
+                                                <%=orders.address.pin%>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>phone:</td>
-                                            <td><%=orders.address.phone%></td>
+                                            <td>
+                                                <%=orders.address.phone%>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>email:</td>
-                                            <td><%=orders.address.email%></td>
+                                            <td>
+                                                <%=orders.address.email%>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>house no:</td>
-                                            <td><%=orders.address.houseNo%></td>
+                                            <td>
+                                                <%=orders.address.houseNo%>
+                                            </td>
                                         </tr>
-                                        
-                                        
+
+
                                     </tbody>
                                 </table>
                             </div>
                             <div class="order-det">
                                 <table class="table table-striped table-dark">
-                                    
-                                    <tbody>
-                                        
-                                        <tr><td>Amount: </td>
-                                        <td><%=orders.totalAmount%></td>
-                                        </tr>
-                                        <tr><td>Date</td>
-                                        <td><%=new
-                                            Date(orders.deliveryDate).toLocaleDateString()%></td>
-                                        </tr>
-                                        <tr><td>Status</td>
-                                        <td><%=orders.status%></td>
-                                        </tr>
-                                        <%if(1==1){%>
 
-                                            <%}%>
-                                        
+                                    <tbody>
+
+                                        <tr>
+                                            <td>Amount: </td>
+                                            <td>
+                                                <%=orders.totalAmount%>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date</td>
+                                            <td>
+                                                <%=new Date(orders.deliveryDate).toLocaleDateString()%>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Status</td>
+                                            <td>
+                                                <%=orders.status%>
+                                            </td>
+
+                                            
+                                        </tr>
+                                        <tr> <td>Method</td><td>
+                                           
+                                            <%=orders.paymentMethod%>
+                                        </td></tr>
+                                        <tr>
+                                            <td>Action</td>
+                                            <td>
+                                                
+                                                <% if (orders.status!=='placed' && orders.status!=='shipped' ) {
+                                                    %>
+                                                    <% if (orders.status=='cancelled' ) { %>
+                                                        <button type="button"
+                                                            class="btn btn-outline-danger">canceled</button>
+                                                        <% } else if (orders.status=='delivered' ) { %>
+                                                            <button type="button"
+                                                                class="btn btn-outline-success">delivered</button>
+                                                            <% } %>
+                                                                <% } else { %>
+                                                                    <div class="dropdown">
+                                                                        <button
+                                                                            class="btn btn-outline-primary dropdown-toggle"
+                                                                            type="button" id="dropdownMenu2"
+                                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                                            aria-expanded="false">
+                                                                            Action
+                                                                        </button>
+                                                                        <div class="dropdown-menu "
+                                                                            aria-labelledby="dropdownMenu2">
+                                                                            <button
+                                                                                onclick="statusUpdate('<%=orders._id%>',1)"
+                                                                                class="dropdown-item"
+                                                                                style="color: white;"
+                                                                                type="button">Cancel</button>
+                                                                            <button
+                                                                                onclick="statusUpdate('<%=orders._id%>',2)"
+                                                                                class="dropdown-item" type="button"
+                                                                                style="color: white;">
+                                                                                Shipped</button>
+                                                                            <button
+                                                                                onclick="statusUpdate('<%=orders._id%>',3)"
+                                                                                class="dropdown-item"
+                                                                                style="color: white;"
+                                                                                type="button">Deliver</button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <% } %>
+                                            </td>
+                                        </tr>
+
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped table-dark">
@@ -88,23 +157,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    
-                                        <% for (var i = 0; i < orders.products.length; i++) { %>
-                                           <tr>
-                                            <td><%=i+1%></td>
-                                            <td><%=orders.products[i].product_name.slice(0, 15)%></td>
+
+                                    <% for (var i=0; i < orders.products.length; i++) { %>
+                                        <tr>
+                                            <td>
+                                                <%=i+1%>
+                                            </td>
+                                            <td>
+                                                <%=orders.products[i].product_name.slice(0, 15)%>
+                                            </td>
                                             <td><img src="/products/crop/<%=orders.products[i].image%>" alt=""></td>
-                                            <td><%=orders.products[i].price%></td>
-                                            <td><%=orders.products[i].quantity%></td>
-                                            <td><%=orders.status%></td>
+                                            <td>
+                                                <%=orders.products[i].price%>
+                                            </td>
+                                            <td>
+                                                <%=orders.products[i].quantity%>
+                                            </td>
+                                            <td>
+                                                <%=orders.status%>
+                                            </td>
 
 
 
-                                           </tr>
-                                           
-                                           
-                                          <% } %>
-                                    
+                                        </tr>
+
+
+                                        <% } %>
+
                                 </tbody>
                             </table>
                         </div>
@@ -117,7 +196,40 @@
 
     </div>
 
+    <script>
+        function statusUpdate(id, level) {
+            $.ajax({
+                url: "/admin/statusUpdate",
+                method: "POST",
+                data: {
+                    id: id,
+                    level: level
 
-   
+                },
+                dataType: "json",
+
+                success: function (response) {
+
+                    console.log(response.success);
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: 'somthing is wrong please try again',
+                        });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("not wanted");
+                    console.error("AJAX Error:", textStatus, errorThrown);
+                },
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <%- include('../partials/adminfooter') %>

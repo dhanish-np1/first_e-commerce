@@ -1,0 +1,63 @@
+<%- include('../partials/adminheadder') %>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="col-12 grid-margin stretch-card">
+            <div class="card" style="color: white">
+                <div class="card-body">
+                    <h4 class="card-title">Edit Banner</h4>
+                    <p id="error-message" style="color: red"></p> 
+                    <form class="forms-sample" id="editBanner" method="post" action="/admin/edit-banner" enctype="multipart/form-data">
+                        <input type="file" id="imageInput" name="image" accept="image/*">
+                        <input type="hidden" value="<%=bannerData._id%>" name="id">
+                        <div class="form-group">
+                            <label for="exampleInputName1">Offer Name</label>
+                            <input value="<%=bannerData.title%>"type="text" class="form-control" name="title" placeholder="Offer Name" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputName1">Percentage</label>
+                            <input value="<%=bannerData.description%>" type="text" class="form-control" name="description" placeholder="Percentage" />
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            edit
+                        </button>
+                        <button type="button" onclick="window.location.href='banner'" class="btn btn-danger">
+                            cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+  
+
+<!-- <script>
+    function editBanner() {
+        const formData = new FormData(document.getElementById("editBanner"));
+        const urlSearchParams = new URLSearchParams(formData);
+        fetch('edit-banner', {
+            method: 'POST',
+            body: urlSearchParams,
+            
+        })
+        .then(response => response.json())
+        .then(data => {
+           if(data.success){
+            document.location='/admin/banner';
+           }else{
+            document.getElementById("error-message").innerHTML =data.message;
+           }
+            
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            
+        });
+    }
+</script> -->
+
+
+
+<%- include('../partials/adminfooter') %>

@@ -70,14 +70,17 @@ userRouter.post(
 //==================================Chekout====================================================
 userRouter.get("/chekout", auth.isLogin, orderController.loadProceedCheckout);
 userRouter.post("/chekout", auth.isLogin, orderController.proceedCheckout);
-
+userRouter.post("/verify-payment", auth.isLogin, orderController.varifyPayment);
 //==================================order====================================================
 userRouter.post("/placeOrder",auth.isLogin,orderController.placeOrder)
 userRouter.get("/orderSuccess",auth.isLogin,orderController.loadSuccess)
 userRouter.get("/orders",auth.isLogin,profileController.loadOrders)
 userRouter.post("/cancelOrders",auth.isLogin,orderController.cancelOrder)
+userRouter.post("/returnOrders",auth.isLogin,orderController.returnOrder)
 
 
+//==================================invoice====================================================
+userRouter.get("/download-invoice",auth.isLogin,orderController.downloadInvoice)
 
 
 

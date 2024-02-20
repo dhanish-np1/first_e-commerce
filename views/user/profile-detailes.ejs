@@ -1,9 +1,9 @@
 <section class="bg0 p-t-20 p-b-70">
   <div class="container">
-    <ol class="breadcrumb">
+    <!-- <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/profile">Menu</a></li>
       <li class="breadcrumb-item active" aria-current="page">Edit</li>
-    </ol>
+    </ol> -->
     <div class="userDetaliles" style="color: black">
       <form id="Form">
         <div class="form-group">
@@ -17,16 +17,7 @@
           />
         </div>
         <input type="hidden" value="<%=userDetails._id%>" name="_id" >
-        <div class="form-group">
-          <label for="formGroupExampleInput2">Email</label>
-          <input
-            type="text"
-            name="email"
-            class="form-control"
-            id="formGroupExampleInput2"
-            value="<%=userDetails.email%>"
-          />
-        </div>
+        
         <div class="form-group">
           <label for="formGroupExampleInput2">Phone</label>
           <input
@@ -37,6 +28,28 @@
             value="<%=userDetails.number%>"
           />
           <div id="error-message" style="color: red"></div>
+        </div>
+        <div class="form-group">
+          <label for="formGroupExampleInput2">Email</label>
+          <input
+            type="text"
+            name="email"
+            class="form-control"
+            id="formGroupExampleInput2"
+            value="<%=userDetails.email%>"
+            disabled
+          />
+        </div>
+        <div class="form-group">
+          <label for="formGroupExampleInput2">Referral Code</label>
+          <input
+            type="text"
+            name="email"
+            class="form-control"
+            id="formGroupExampleInput2"
+            value="<%=userDetails.referralCode%>"
+            disabled
+          />
         </div>
         <a href="/profile" class="btn btn-danger">Cancel</a>
         <button type="button" class="btn btn-primary" onclick="submitForm()">

@@ -134,7 +134,7 @@
                     $("#table").load("/admin/orders #table");
                     console.log(response.success);
                     if (response.success) {
-                        $("#table").load("/orders #table");
+                        location.reload();
                     } else {
                         Swal.fire({
                             icon: "error",

@@ -8,7 +8,6 @@ const offerController = require("../controllers/offerControllers");
 const bannerController = require("../controllers/bannerControllers")
 const multer = require("../middlewares/multer");
 const isAuth = require("../middlewares/adminAuth");
-
 //==================================login/logout================================================
 adminRouter.post("/adminlogin", isAuth.isLogout, admincontroller.adminLogin);
 adminRouter.get("/logout", isAuth.isLogin, admincontroller.adminLogout);
@@ -75,6 +74,11 @@ adminRouter.post("/product-Offer", isAuth.isLogin, offerController.addProductOff
 adminRouter.post("/remove-Offer", isAuth.isLogin, offerController.removeProductOffer);
 //=================================banner=====================================================
 adminRouter.get("/banner", isAuth.isLogin, bannerController.loadBanner);
+adminRouter.post("/blockBanner", isAuth.isLogin, bannerController.blockBanner);
+adminRouter.get("/edit-banner", isAuth.isLogin, bannerController.loadEditBanner);
+adminRouter.post("/edit-banner", isAuth.isLogin, bannerController.editBanner);
+
+
 
 
 module.exports = adminRouter;
