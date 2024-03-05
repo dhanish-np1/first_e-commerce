@@ -4,25 +4,29 @@ const category = require("../models/catogerymodel");
 const user = require("../models/usermodel");
 const address = require("../models/addressModel");
 const order = require("../models/orderModel");
+const coupons = require("../models/couponModel");
 const bcrypt = require("bcrypt");
+const moment = require("moment");
 
-
+// =========================== LOAD PROFILE=================================================
 
 const loadProfile = async (req, res) => {
   try {
     console.log(req.session);
     // const name= await user.find({_id:req.session.user_id});
-    const userData=await user.findOne({_id:req.session.user_id})
+    const userData = await user.findOne({ _id: req.session.user_id });
     res.render("user/profile", {
       lay: true,
       name: req.session.name,
-      userData
+      userData,
     });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// ========================== LOAD USER DETAILS==================================================
 
 const loadUserDetailes = async (req, res) => {
   try {
@@ -37,6 +41,7 @@ const loadUserDetailes = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ==============LOAD EDIT DETAILS==============================================================
 
 const editDetails = async (req, res) => {
   try {
@@ -48,36 +53,34 @@ const editDetails = async (req, res) => {
         errorMessage: "name should be more than 2 charectors",
       });
     } else {
-      if ( number.trim() === "" && name.trim() === "") {
+      if (number.trim() === "" && name.trim() === "") {
         return res.json({
           success: false,
           errorMessage: "some field is empty",
         });
       } else {
-        
-          const mobilePattern = /^\d{10}$/;
-          if (!mobilePattern.test(number) || number === "0000000000") {
-            return res.json({
-              success: false,
-              errorMessage: "please give a valid phone number",
-            });
-          } else {
-            await user.updateOne(
-              { _id: req.body._id },
-              {
-                $set: {
-                  fullname: name,
-                  number: number,
-                },
-              }
-            );
-            return res.json({
-              success: true,
-              redirectTo: "/profile",
-              name: req.session.name,
-            });
-          }
-        
+        const mobilePattern = /^\d{10}$/;
+        if (!mobilePattern.test(number) || number === "0000000000") {
+          return res.json({
+            success: false,
+            errorMessage: "please give a valid phone number",
+          });
+        } else {
+          await user.updateOne(
+            { _id: req.body._id },
+            {
+              $set: {
+                fullname: name,
+                number: number,
+              },
+            }
+          );
+          return res.json({
+            success: true,
+            redirectTo: "/profile",
+            name: req.session.name,
+          });
+        }
       }
     }
   } catch (error) {
@@ -85,6 +88,7 @@ const editDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ===================LOAD CAHNGE PASSWORD=========================================================
 
 const loadChangePassword = async (req, res) => {
   try {
@@ -94,6 +98,7 @@ const loadChangePassword = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ==============CHANGE PASSWORD==============================================================
 
 const ChangePassword = async (req, res) => {
   try {
@@ -106,33 +111,34 @@ const ChangePassword = async (req, res) => {
     const hasUppercase = /[A-Z]/.test(newPassword);
     const hasLowercase = /[a-z]/.test(newPassword);
     const hasNumber = /\d/.test(newPassword);
-    const hasSpecialChar = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(
-      newPassword
-    );
+    const hasSpecialChar = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(newPassword);
     const passwordmatch = await bcrypt.compare(curPassword, userData.password);
-    if (curPassword.trim() === "" || newPassword.trim() === "" || confPassword.trim() === "") {
+    if (
+      curPassword.trim() === "" ||
+      newPassword.trim() === "" ||
+      confPassword.trim() === ""
+    ) {
       return res.json({
         success: false,
         errorMessage: "please fill all fields",
       });
-
-    } else if ((
+    } else if (
       newPassword.length < 6 ||
       !(hasUppercase && hasLowercase && hasNumber && hasSpecialChar)
-    )) {
+    ) {
       return res.json({
         success: false,
         errorMessage:
           "password need more than 6 and need special charecters and uper case and lower case",
       });
-    }else if(newPassword !==confPassword){
+    } else if (newPassword !== confPassword) {
       return res.json({
         success: false,
         errorMessage: "password and conform password is not equal",
       });
     }
 
-    if(passwordmatch){
+    if (passwordmatch) {
       const passwordhash = await bcrypt.hash(newPassword, 10);
       const updatedData = await user.updateOne(
         { _id: userId },
@@ -151,42 +157,48 @@ const ChangePassword = async (req, res) => {
           errorMessage: "somthing went wrong please try again later",
         });
       }
-    }else{
+    } else {
       return res.json({
         success: false,
         errorMessage: "curent password is wrong",
       });
     }
-    
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ====================LOAD ADDRESS========================================================
 
 const loadAddress = async (req, res) => {
   try {
-    const Address = await address.findOne({ user: req.session.user_id })
+    const Address = await address.findOne({ user: req.session.user_id });
     res.render("user/Address", { lay: true, Address, name: req.session.name });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// =======================LOAD ADD ADDRESS=====================================================
 
 const loadAddAddress = async (req, res) => {
   try {
-    res.render("user/addAddress", { lay: true, name: req.session.name,page:req.query.page });
+    res.render("user/addAddress", {
+      lay: true,
+      name: req.session.name,
+      page: req.query.page,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ================== ADD ADDRESS==========================================================
 
 const addAddress = async (req, res) => {
   try {
     console.log(req.body);
-    const page=req.body.page;
+    const page = req.body.page;
     const name = req.body.name;
     const email = req.body.email;
     const number = req.body.number;
@@ -253,18 +265,19 @@ const addAddress = async (req, res) => {
                     },
                   }
                 );
-                if(updated){
+                if (updated) {
                   return res.json({
                     success: true,
-                    errorMessage: "",page
+                    errorMessage: "",
+                    page,
                   });
-                }else{
+                } else {
                   return res.json({
                     success: false,
-                    errorMessage: "some thing went wrong please try again later",
+                    errorMessage:
+                      "some thing went wrong please try again later",
                   });
                 }
-                
               } else {
                 const data = new address({
                   user: userId,
@@ -281,18 +294,19 @@ const addAddress = async (req, res) => {
                   ],
                 });
                 const saved = await data.save();
-                if(saved){
+                if (saved) {
                   return res.json({
                     success: true,
-                    errorMessage: "",page
+                    errorMessage: "",
+                    page,
                   });
-                }else{
+                } else {
                   return res.json({
                     success: false,
-                    errorMessage: "some thing went wrong please try again later",
+                    errorMessage:
+                      "some thing went wrong please try again later",
                   });
                 }
-               
               }
             }
           }
@@ -304,6 +318,7 @@ const addAddress = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ==============LOAD ORDERS==============================================================
 
 const loadOrders = async (req, res) => {
   try {
@@ -313,17 +328,17 @@ const loadOrders = async (req, res) => {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
+// ====================REOMOVE ADDRESS========================================================
 
-
-const removeAddress =async (req, res) => {
+const removeAddress = async (req, res) => {
   try {
     const Id = req.body._id;
     const addressId = req.body.addressId;
-    const addressData = await address.findOne({ _id:Id });
+    const addressData = await address.findOne({ _id: Id });
     console.log(addressData);
     if (addressData) {
-     const a= await address.findOneAndUpdate(
+      const a = await address.findOneAndUpdate(
         { _id: Id },
         {
           $pull: { address: { _id: addressId } },
@@ -335,25 +350,53 @@ const removeAddress =async (req, res) => {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
+// ===============LOAD COUPONS=============================================================
+
 const loadCoupons = async (req, res) => {
   try {
-    res.render("user/coupons", { lay: true, name: req.session.name });
+    const currentDate = moment();
+    const coupon = await coupons.find({
+      status: true,
+      activationDate: { $lte: currentDate.toISOString() },
+    });
+    console.log(coupon);
+    res.render("user/coupons", { lay: true, name: req.session.name, coupon });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// ========================LOAD WALLET====================================================
+
+const loadWallet = async (req, res) => {
+  try {
+    const userData = await user.findOne({ _id: req.session.user_id });
+    res.render("user/wallet", { lay: true, name: req.session.name, userData });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// ========================LOAD ORDER DETAIL====================================================
+
+const loadOrderDetail = async (req, res) => {
+  try {
+    const orderId = req.query.id;
+    const orders = await order.findOne({ _id: orderId });
+    const userData = await user.findOne({ _id: req.session.user_id });
+    res.render("user/viewOrderdetail", {
+      lay: true,
+      name: req.session.name,
+      userData,
+      orders,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-const loadWallet = async (req, res) => {
-  try {
-    const userData=await user.findOne({_id:req.session.user_id})
-    res.render("user/wallet", { lay: true, name: req.session.name,userData});
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
 module.exports = {
   loadProfile,
   loadUserDetailes,
@@ -366,6 +409,6 @@ module.exports = {
   ChangePassword,
   removeAddress,
   loadCoupons,
-  loadWallet
-
+  loadWallet,
+  loadOrderDetail,
 };

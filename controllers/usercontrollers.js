@@ -3,6 +3,8 @@ const product = require("../models/productmodel");
 const bcrypt = require("bcrypt");
 const { render } = require("ejs");
 const nodemailer = require("nodemailer");
+const category = require("../models/catogerymodel");
+const banner = require("../models/bannerModel");
 var otp;
 
 // =====================otp expire==================
@@ -17,11 +19,13 @@ function otpExpirationTimer() {
 // =====================loadshop==================
 const loadShop = async (req, res) => {
   try {
-    const products = await product.find({ blocked: 0 }).populate("offer");
+    const products = await product.find({ blocked: 0 ,quantity: { $gt: 0 }}).populate("offer");
+    const categery = await category.find({ blocked: 0 });
     res.render("user/product", {
       lay: true,
       products: products,
       name: req.session.name,
+      categery,
     });
   } catch (error) {
     console.log(error.message);
@@ -148,18 +152,18 @@ const insertUser = async (req, res) => {
                     result += charset.charAt(randomIndex);
                   }
                   let refCode = req.body.refCode;
-                  console.log('working');
-                  if(refCode.trim()!==""){
+                  console.log("working");
+                  if (refCode.trim() !== "") {
                     console.log("why");
-                    const ref = await user.findOne({referralCode:refCode});
-                    if(!ref){
+                    const ref = await user.findOne({ referralCode: refCode });
+                    if (!ref) {
                       return res.json({
                         success: false,
                         errorMessage: "this referal code dose not exist",
                       });
                     }
                   }
-                  console.log('work2');
+                  console.log("work2");
                   const spassword = await securePassword(req.body.password);
                   const User = new user({
                     fullname: req.body.name,
@@ -168,8 +172,8 @@ const insertUser = async (req, res) => {
                     password: spassword,
                     is_verified: 0,
                     is_block: 0,
-                    referralCode:result,
-                    usedReferralCode:refCode
+                    referralCode: result,
+                    usedReferralCode: refCode,
                   });
 
                   const savedUser = await User.save(); // Save the user to the databas
@@ -209,21 +213,24 @@ const insertUser = async (req, res) => {
 
 const loadHome = async (req, res) => {
   try {
-    console.log(req.session);
-    const products = await product.find({ blocked: 0 }).populate("offer");
+    const banners = await banner.find({});
+    const products = await product.find({ blocked: 0,quantity: { $gt: 0 } }).populate("offer");
+    const categery = await category.find({ blocked: 0 });
     const log = req.session.user_id;
     res.render("user/home", {
       lay: true,
       islogin: log,
       products: products,
       name: req.session.name,
+      categery,
+      banners,
     });
   } catch (error) {
     console.log(error.massage);
   }
 };
 
-// =====================loadhome==================
+// =====================load LOGIN==================
 
 const loadLogin = async (req, res) => {
   try {
@@ -319,6 +326,7 @@ const login = async (req, res) => {
     console.log(error.message);
   }
 };
+// ====================VARIFY OTP========================================================
 
 const otpVarify = async (req, res) => {
   try {
@@ -332,11 +340,13 @@ const otpVarify = async (req, res) => {
       req.session.user_id = userId;
       req.session.userId = null;
       req.session.userOTP = null;
-      const userData= await user.findOne({_id:userId})
-      if (userData.usedReferralCode.length>4) {
-        await user.updateOne({ referralCode: userData.usedReferralCode }, { $inc: { wallet: 50 } });
-      await user.updateOne({ _id: userId }, { $inc: { wallet: 50 } });
-        
+      const userData = await user.findOne({ _id: userId });
+      if (userData.usedReferralCode.length > 4) {
+        await user.updateOne(
+          { referralCode: userData.usedReferralCode },
+          { $inc: { wallet: 50 } }
+        );
+        await user.updateOne({ _id: userId }, { $inc: { wallet: 50 } });
       }
       return res.json({
         success: true,
@@ -352,11 +362,13 @@ const otpVarify = async (req, res) => {
     console.log(error);
   }
 };
+// ====================USER LOGOUT========================================================
 
 const userLogout = async (req, res) => {
   try {
-    req.session.name = false;
-    req.session.user_id = false;
+    // req.session.name = false;
+    // req.session.user_id = false;
+    req.session.destroy();
     res.redirect("/");
   } catch (error) {
     console.log(error.message);
@@ -382,7 +394,7 @@ const resendOtp = async (req, res) => {
   }
 };
 
-//==================================Forgot password===================================================
+//================================== LOAD Forgot password===================================================
 const loadForgotPassword = async (req, res) => {
   try {
     res.render("user/forgotPassword", { lay: true, name: req.session.name });
@@ -391,6 +403,7 @@ const loadForgotPassword = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// =========================FORGOT PASSWORD===================================================
 
 const forgotPassword = async (req, res) => {
   try {
@@ -418,6 +431,8 @@ const forgotPassword = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ==============LOAD FORGOT OTP==============================================================
+
 const loadOtpForgot = async (req, res) => {
   try {
     res.render("user/forgotPassOtp", { lay: false });
@@ -425,6 +440,7 @@ const loadOtpForgot = async (req, res) => {
     console.log(error.massage);
   }
 };
+// ====================SEND OTP========================================================
 
 const sendForgotOtp = async (email, otp) => {
   try {
@@ -456,6 +472,7 @@ const sendForgotOtp = async (email, otp) => {
     console.error("Error in sendVerifyMail:", error);
   }
 };
+// ==============================RESEND OTP==============================================
 
 const resendForgotOtp = async (req, res) => {
   try {
@@ -472,6 +489,7 @@ const resendForgotOtp = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ================VARIFY FORGOT OTP============================================================
 
 const varifyForgotOtp = async (req, res) => {
   try {
@@ -486,6 +504,7 @@ const varifyForgotOtp = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ===============LOAD RESET PASSWORD=============================================================
 
 const loadResetPassword = async (req, res) => {
   try {
@@ -495,6 +514,7 @@ const loadResetPassword = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// =====================RESET PASSWORD=======================================================
 
 const ResetPassword = async (req, res) => {
   try {

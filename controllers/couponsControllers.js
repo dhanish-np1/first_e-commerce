@@ -1,23 +1,18 @@
 const { render } = require("ejs");
-const product = require("../models/productmodel");
-const category = require("../models/catogerymodel");
-const user = require("../models/usermodel");
-const cart = require("../models/cartModel");
-const address = require("../models/addressModel");
-const order = require("../models/orderModel");
 const coupons = require("../models/couponModel");
 
+// ========================LOAD COUPON PAGE====================================================
 const loadCoupens = async (req, res) => {
   try {
-    const coupon= await coupons.find({});
+    const coupon = await coupons.find({});
     console.log(coupon);
-    res.render("admin/coupons", { lay: false ,coupon});
+    res.render("admin/coupons", { lay: false, coupon });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
+// ===================== LOAD ADD COUPON PAGE=======================================================
 const loadAddCoupens = async (req, res) => {
   try {
     res.render("admin/addCoupons", { lay: false });
@@ -26,6 +21,7 @@ const loadAddCoupens = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ====================ADD COUPON========================================================
 
 const addCoupens = async (req, res) => {
   try {
@@ -43,7 +39,7 @@ const addCoupens = async (req, res) => {
     const regexName = new RegExp(coponsName, "i");
     const already = await coupons.findOne({ couponName: regexName });
     const regexCode = new RegExp(coponsCode, "i");
-    const codeAlready = await coupons.findOne({ couponCode:regexCode });
+    const codeAlready = await coupons.findOne({ couponCode: regexCode });
     if (
       coponsName.trim() === "" &&
       coponsCode.trim() === "" &&
@@ -111,14 +107,15 @@ const addCoupens = async (req, res) => {
   }
 };
 
+// ======================= LOAD EDIT COUPON=====================================================
 const loadEditCoupon = async (req, res) => {
   try {
-    
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ============================EDIT COUPON================================================
 
 const editCoupon = async (req, res) => {
   try {
@@ -128,17 +125,14 @@ const editCoupon = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
+// =========================BLOCK COUPON===================================================
 const blockCoupon = async (req, res) => {
   try {
-    console.log('working');
+    console.log("working");
     const id = req.body._id;
     const coupen = await coupons.findOne({ _id: id });
     if (coupen.status == true) {
-      await coupons.updateOne(
-        { _id: id },
-        { $set: { status: false } }
-      );
+      await coupons.updateOne({ _id: id }, { $set: { status: false } });
       return res.json({
         blocked: true,
         success: true,
@@ -146,7 +140,7 @@ const blockCoupon = async (req, res) => {
         btncolor: "green",
       });
     } else {
-      console.log('workig');
+      console.log("workig");
       await coupons.updateOne({ _id: id }, { $set: { status: true } });
       return res.json({
         blocked: true,
@@ -155,7 +149,81 @@ const blockCoupon = async (req, res) => {
         btncolor: "red",
       });
     }
-    
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// ======================= APPLY COUPON=====================================================
+
+const applyCoupon = async (req, res) => {
+  try {
+    console.log("working");
+    const code = req.body.couponCode;
+    console.log(code);
+
+    if (code.trim() == "") {
+      return res.json({
+        success: false,
+        message: "please enter the coupon code",
+      });
+    }
+    const coupon = await coupons.findOne({ couponCode: code });
+    console.log(coupon);
+    if (!coupon) {
+      return res.json({
+        success: false,
+        message: "this coupon not exist",
+      });
+    }
+    if (coupon.status == false) {
+      return res.json({
+        success: false,
+        message: "this coupon is not available",
+      });
+    }
+    const usedCoupon = await coupons.findOne({
+      couponCode: code,
+      usedUsers: { $in: [req.session.user_id] },
+    });
+    if (usedCoupon) {
+      return res.json({
+        success: false,
+        message: "this coupon already used",
+      });
+    }
+    if (coupon.expiryDate <= new Date()) {
+      return res.json({
+        success: false,
+        message: "this coupon is expired",
+      });
+    }
+    if (coupon.criteriaAmount > req.body.amount) {
+      return res.json({
+        success: false,
+        message: `minimum ${coupon.criteriaAmount}Rs needed for apply this coupon `,
+      });
+    }
+    if (coupon.usersLimit <= coupon.usedUsers.length) {
+      return res.json({
+        success: false,
+        message: `coupon expired `,
+      });
+    }
+    req.session.code = code;
+    req.session.couponAmount = coupon.discountAmount;
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// ============================REMOVE COUPON================================================
+const romveCoupon = async (req, res) => {
+  try {
+    req.session.code = false;
+    req.session.couponAmount = false;
+    res.json({ success: true });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -168,5 +236,7 @@ module.exports = {
   addCoupens,
   loadEditCoupon,
   editCoupon,
-  blockCoupon
+  blockCoupon,
+  applyCoupon,
+  romveCoupon,
 };

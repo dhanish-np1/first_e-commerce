@@ -8,6 +8,7 @@ const address = require("../models/addressModel");
 const order = require("../models/orderModel");
 const Offer = require("../models/offerModel");
 
+// ======================LOAD OFFERS======================================================
 const loadOffers = async (req, res) => {
   try {
     const offers = await Offer.find();
@@ -17,6 +18,7 @@ const loadOffers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ====================LOAD ADD OFFERS PAGE========================================================
 
 const loadAddOffers = async (req, res) => {
   try {
@@ -26,6 +28,7 @@ const loadAddOffers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ===================ADD OFFERS=========================================================
 
 const addOffers = async (req, res) => {
   try {
@@ -74,6 +77,7 @@ const addOffers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ======================BLOCK OFFER======================================================
 
 const blockOffer = async (req, res) => {
   try {
@@ -101,6 +105,8 @@ const blockOffer = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ===================== LOAD EDIT OFFER=======================================================
+
 const loadEditOffer = async (req, res) => {
   try {
     const id = req.query.id;
@@ -112,6 +118,7 @@ const loadEditOffer = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ==================EDIT OFFER==========================================================
 
 const editOffer = async (req, res) => {
   try {
@@ -164,11 +171,12 @@ const editOffer = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// =============LOAD PRODUCT OFFERS===============================================================
 
 const loadProductOffers = async (req, res) => {
   try {
     const id = req.query.id;
-    const offer = await Offer.find({blocked:0});
+    const offer = await Offer.find({ blocked: 0 });
     const productDetail = await product.findOne({ _id: id });
     console.log(productDetail);
     res.render("admin/productOffer", { lay: false, productDetail, offer });
@@ -177,6 +185,7 @@ const loadProductOffers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ==================== ADD PRODUCT OFFERS========================================================
 
 const addProductOffers = async (req, res) => {
   try {
@@ -195,10 +204,11 @@ const addProductOffers = async (req, res) => {
       const convertedOfferId = new ObjectId(offerId);
       const offerData = await Offer.findOne({ _id: convertedOfferId });
       const productData = await product.findOne({ _id: proId });
-      productData.offer=convertedOfferId;
-      productData.discount= productData.price -(offerData.percentages * productData.price)/100;
-      const saveOffer= await productData.save();
-      if(saveOffer){
+      productData.offer = convertedOfferId;
+      productData.discount =
+        productData.price - (offerData.percentages * productData.price) / 100;
+      const saveOffer = await productData.save();
+      if (saveOffer) {
         return res.json({
           success: true,
           message: "",
@@ -210,20 +220,101 @@ const addProductOffers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
+// ====================REMOVE PRODUCT OFFER========================================================
 
 const removeProductOffer = async (req, res) => {
   try {
-    const proId=req.body.proId;
-    const proData= await product.findOne({_id:proId})
-    if(proData){
-      proData.offer=null;
-      proData.discount=null;
-      await proData.save()
+    const proId = req.body.proId;
+    const proData = await product.findOne({ _id: proId });
+    if (proData) {
+      proData.offer = null;
+      proData.discount = null;
+      await proData.save();
       return res.json({
         success: true,
-        
       });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// ===============ADD CATEGERY OFFERS=============================================================
+
+const addCategeryOffers = async (req, res) => {
+  try {
+    console.log("working");
+    console.log(req.body);
+    const offerId = req.body.offerId;
+    const categeryId = req.body.categeryId;
+    const offerData = await Offer.findOne({ _id: offerId });
+    const categeryData = await category.findOne({ _id: categeryId });
+    console.log(offerData);
+    console.log(categeryData);
+    if (offerData && categeryData) {
+      categeryData.offer = offerData._id;
+      const proData = await product
+        .find({ category: categeryData.name })
+        .populate("offer");
+      for (const product of proData) {
+        if (product.category == categeryData.name) {
+          if (
+            !product.offer ||
+            offerData.percentages > product.offer.percentages
+          ) {
+            product.discount =
+              product.price - (offerData.percentages * product.price) / 100;
+            product.offer = offerData._id;
+          }
+          await product.save();
+        }
+      }
+      const updatedCategory = await categeryData.save();
+    } else {
+    }
+    res.redirect("catogery");
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// =====================REMOVE CATEGERY OFFERS=======================================================
+
+const removeCategeryOffers = async (req, res) => {
+  try {
+    console.log(req.body);
+    const categeryId = req.body.categeryId;
+    const categeryName = req.body.name;
+    const cateData = await category
+      .findOne({ _id: categeryId })
+      .populate("offer");
+    const proData = await product
+      .find({ category: categeryName })
+      .populate("offer");
+    for (const product of proData) {
+      if (product.offer === null) {
+        product.discount = null;
+      } else if (product.offer && product.offer.percentages) {
+        if (product.offer.percentages > cateData.offer.percentages) {
+          product.discount =
+            product.price - (product.offer.percentages * product.price) / 100;
+        } else {
+          product.offer = null;
+          product.discount = null;
+        }
+      }
+
+      await product.save();
+    }
+    if (cateData) {
+      // Remove category offer
+      cateData.offer = null;
+      const updateData = await cateData.save();
+
+      if (updateData) {
+        res.json({ success: true });
+      }
     }
   } catch (error) {
     console.log(error.message);
@@ -240,5 +331,7 @@ module.exports = {
   loadEditOffer,
   loadProductOffers,
   addProductOffers,
-  removeProductOffer
+  removeProductOffer,
+  addCategeryOffers,
+  removeCategeryOffers,
 };

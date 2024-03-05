@@ -1,0 +1,235 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://kit.fontawesome.com/my id.js" crossorigin="anonymous"></script>
+<!-- breadcrumb -->
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="/profile" class="stext-109 cl8 hov-cl1 trans-04">
+      profile
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <a href="/orders" class="stext-109 cl8 hov-cl1 trans-04">
+      orders
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4"> order detail </span>
+  </div>
+</div>
+
+<div style="padding-bottom: 25px; padding-top: 25px">
+  
+  <% if (orders.length!==0) { %>
+  <div class="container listOrders">
+    <% if (orders.status=='delivered') { %>
+      <a href="/download-invoice?id=<%=orders._id%>"><button type="button" class="btn btn-outline-dark" style="width: 200px;">Download invoice</button></a>
+    <% }%>
+    <% if (orders.status=='pending') { %>
+      <form id="submitpayment">
+        <input type="hidden" name="order_Id" value="<%=orders._id%>">
+        <button type="button" onclick="submitPayment()" class="btn btn-outline-dark" style="width: 200px;">complete payment</button>
+      </form>
+      
+    <% }%>
+    <div class="orders">
+      <% for (let j=0; j < orders.products.length; j++) { %>
+      <div class="imgdiv">
+        <img
+          src="/products/images/<%=orders.products[j].image %>"
+          alt=""
+          class="orderimg"
+        />
+        <div style="width: 100px">
+          <p style="color: black"><%=orders.products[j].product_name%></p>
+        </div>
+        <div>
+          <p style="color: black">
+            date <br />
+            <%=new Date(orders.deliveryDate).toLocaleDateString()%>
+          </p>
+        </div>
+        <div>
+          <p style="color: black">
+            price <br />
+            &#8377; <%=orders.products[j].price%>
+          </p>
+        </div>
+        <div>
+          <p style="color: black">
+            quantity <br />
+            &nbsp; &nbsp;<%=orders.products[j].quantity%>
+          </p>
+        </div>
+
+        <div></div>
+      </div>
+      <hr style="border: none; border-top: 1px solid #000" />
+
+      <% } %>
+      <!-- after section of show product -->
+      <div style="display: flex; flex-direction: column; ">
+        <!-- display address -->
+        <div class="moredetails">
+          <h5 style="color: black">Billing address:</h5>
+          <address style="color: black">
+            Name: &nbsp; <%=orders.address.Name%> <br />
+            Phone: &nbsp; <%=orders.address.phone%> <br />
+            State:&nbsp;<%=orders.address.state%> <br />
+            Email:&nbsp; <%=orders.address.email%> <br />
+            City:&nbsp; <%=orders.address.city%> <br />
+            Pincode:&nbsp; <%=orders.address.pin%> <br />
+            House no:&nbsp; <%=orders.address.houseNo%> <br />
+          </address>
+        </div>
+        <!-- show status -->
+        <hr style="border: none; border-top: 1px solid #000" />
+        <div class="moredetails">
+            <h5 style="color: black">Order Status:</h5>
+            <p style="color: black; font-size: 15px;"> <%=orders.status%></p>
+        </div>
+        <!-- show status -->
+        <hr style="border: none; border-top: 1px solid #000" />
+        <div class="moredetails">
+            <h5 style="color: black">Payment method:</h5>
+            <p style="color: black; font-size: 15px;"> <%=orders.paymentMethod%></p>
+        </div>
+        <!-- show status -->
+        <hr style="border: none; border-top: 1px solid #000" />
+        <div class="moredetails">
+            <h5 style="color: black">Coupon:</h5>
+            <p style="color: black; font-size: 15px;"> 
+              <% if (orders.discount) { %>
+                &#8377; <%=orders.discount%></p>
+            <% } else { %>
+              Not added
+              <% } %>
+              
+        </div>
+         <!-- show status -->
+         <hr style="border: none; border-top: 1px solid #000" />
+         <div class="moredetails">
+             <h5 style="color: black">Total amount:</h5>
+             <p style="color: black; font-size: 15px;">&#8377; <%=orders.totalAmount%></p>
+         </div>
+      </div>
+    </div>
+  </div>
+  <% } else { %>
+
+  <div
+    style="
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: black;
+      flex-direction: column;
+      gap: 10px;
+    "
+  >
+    <h1>something wrong</h1>
+    <a href="profile"
+      ><button type="button" class="btn btn-primary">Go back</button></a
+    >
+  </div>
+  <% } %>
+</div>
+
+
+<script>
+  function submitPayment() {
+    const formData = new FormData(document.getElementById("submitpayment"));
+    const urlSearchParams = new URLSearchParams(formData);
+
+    fetch("/failed-Payment", {
+      method: "POST",
+      body: urlSearchParams,
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log(response.status);
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          window.location.href = "/orderSuccess";
+        } else if (data.order) {
+          razorPayment(data.order);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.message,
+          });
+        }
+      })
+
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+
+
+  function razorPayment(order) {
+    console.log(order);
+    var options = {
+      key: "rzp_test_2lSCohy0YKKPBl", // Enter the Key ID generated from the Dashboard
+      amount: order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      currency: "INR",
+      name: "cozastore Pvt.Ltd", //your business name
+      description: "Test Transaction",
+      order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      handler: function (response) {
+        console.log(response);
+
+        verifyPayment(response, order);
+
+      },
+      prefill: {
+        //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+        name: "keyzen Pvt.Ltd", //your customer's name
+        email: "keyzen007store@example.com",
+        contact: "910000000369", //Provide the customer's phone number for better conversion rates
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#c96",
+      },
+    };
+
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+  }
+
+  function verifyPayment(payment, order) {
+    $.ajax({
+      url: "/verify-payment",
+      method: "post",
+      data: {
+        payment: payment,
+        order: order,
+      },
+      success: (response) => {
+        if (response.success == true) {
+          window.location.href = "/orderSuccess";
+        } else {
+          console.log('working');
+          Swal.fire({
+            positon: "center",
+            icon: "error",
+            title: "Payment failed",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+      },
+    });
+  }
+</script>

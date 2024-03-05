@@ -24,6 +24,17 @@ const productImagesUpload = upload.fields([
 
 
 
+const Bannerstorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../public/banner"));
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+const bannerUpload = multer({storage:Bannerstorage})
 
-
-module.exports = { productImagesUpload}
+module.exports = { productImagesUpload, bannerUpload}

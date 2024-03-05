@@ -6,6 +6,7 @@ const productcontroller = require("../controllers/productcontrollers");
 const profileController = require("../controllers/profileControllers");
 const cartController = require("../controllers/cartControllers");
 const orderController = require("../controllers/orderControllers");
+const couponController = require("../controllers/couponsControllers");
 //==================================login/logout/sign-up======================================
 userRouter.get("/sign-up", auth.isLogout, usercontroller.loadSign_up);
 userRouter.get("/login", auth.isLogout, usercontroller.loadLogin);
@@ -13,13 +14,37 @@ userRouter.post("/sign-up", auth.isLogout, usercontroller.insertUser);
 userRouter.post("/login", auth.isLogout, usercontroller.login);
 userRouter.get("/logout", auth.isLogin, usercontroller.userLogout);
 //==================================forgot password======================================
-userRouter.get("/forgot-password",auth.isLogout, usercontroller.loadForgotPassword);
-userRouter.post("/forgot-password",auth.isLogout, usercontroller.forgotPassword);
-userRouter.get("/forgot-password-otp",auth.isLogout, usercontroller.loadOtpForgot);
-userRouter.post("/resendForgototp",auth.isLogout, usercontroller.resendForgotOtp);
-userRouter.post("/varifyForgototp",auth.isLogout, usercontroller.varifyForgotOtp);
-userRouter.get("/resetPassword",auth.isLogout, usercontroller.loadResetPassword);
-userRouter.post("/resetPassword",auth.isLogout, usercontroller.ResetPassword);
+userRouter.get(
+  "/forgot-password",
+  auth.isLogout,
+  usercontroller.loadForgotPassword
+);
+userRouter.post(
+  "/forgot-password",
+  auth.isLogout,
+  usercontroller.forgotPassword
+);
+userRouter.get(
+  "/forgot-password-otp",
+  auth.isLogout,
+  usercontroller.loadOtpForgot
+);
+userRouter.post(
+  "/resendForgototp",
+  auth.isLogout,
+  usercontroller.resendForgotOtp
+);
+userRouter.post(
+  "/varifyForgototp",
+  auth.isLogout,
+  usercontroller.varifyForgotOtp
+);
+userRouter.get(
+  "/resetPassword",
+  auth.isLogout,
+  usercontroller.loadResetPassword
+);
+userRouter.post("/resetPassword", auth.isLogout, usercontroller.ResetPassword);
 //==================================load pages================================================
 userRouter.get("/home", auth.isLogin, usercontroller.loadHome);
 userRouter.get("/", auth.isLogout, usercontroller.loadHome);
@@ -47,7 +72,11 @@ userRouter.get(
   auth.isLogin,
   profileController.loadChangePassword
 );
-userRouter.post("/changePassword", auth.isLogin, profileController.ChangePassword);
+userRouter.post(
+  "/changePassword",
+  auth.isLogin,
+  profileController.ChangePassword
+);
 //==================================Add Address====================================================
 userRouter.get("/add-address", auth.isLogin, profileController.loadAddress);
 userRouter.get(
@@ -56,7 +85,11 @@ userRouter.get(
   profileController.loadAddAddress
 );
 userRouter.post("/add-address", auth.isLogin, profileController.addAddress);
-userRouter.post("/remove-address", auth.isLogin, profileController.removeAddress);
+userRouter.post(
+  "/remove-address",
+  auth.isLogin,
+  profileController.removeAddress
+);
 //==================================cart====================================================
 userRouter.get("/cart", auth.isLogin, cartController.loadCart);
 userRouter.post("/addToCart", cartController.addToCart);
@@ -72,16 +105,21 @@ userRouter.get("/chekout", auth.isLogin, orderController.loadProceedCheckout);
 userRouter.post("/chekout", auth.isLogin, orderController.proceedCheckout);
 userRouter.post("/verify-payment", auth.isLogin, orderController.varifyPayment);
 //==================================order====================================================
-userRouter.post("/placeOrder",auth.isLogin,orderController.placeOrder)
-userRouter.get("/orderSuccess",auth.isLogin,orderController.loadSuccess)
-userRouter.get("/orders",auth.isLogin,profileController.loadOrders)
-userRouter.post("/cancelOrders",auth.isLogin,orderController.cancelOrder)
-userRouter.post("/returnOrders",auth.isLogin,orderController.returnOrder)
-
-
+userRouter.post("/placeOrder", auth.isLogin, orderController.placeOrder);
+userRouter.get("/orderSuccess", auth.isLogin, orderController.loadSuccess);
+userRouter.get("/orders", auth.isLogin, profileController.loadOrders);
+userRouter.post("/cancelOrders", auth.isLogin, orderController.cancelOrder);
+userRouter.post("/returnOrders", auth.isLogin, orderController.returnOrder);
+userRouter.get("/orderDetail", auth.isLogin, profileController.loadOrderDetail);
+userRouter.post("/failed-Payment", auth.isLogin, orderController.payFaildPayment);
 //==================================invoice====================================================
-userRouter.get("/download-invoice",auth.isLogin,orderController.downloadInvoice)
-
-
+userRouter.get(
+  "/download-invoice",
+  auth.isLogin,
+  orderController.downloadInvoice
+);
+//==================================invoice====================================================
+userRouter.post("/addCoupon", auth.isLogin, couponController.applyCoupon);
+userRouter.post("/removeCoupon", auth.isLogin, couponController.romveCoupon);
 
 module.exports = userRouter;

@@ -1,0 +1,147 @@
+<%- include('../partials/adminheadder') %>
+    <style>
+        .canceled-box {
+            width: 75px;
+            height: 25px;
+            background-color: #f8d7da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            font-weight: bold;
+        }
+    </style>
+    <div class="content-wrapper">
+        <div class="page-header">
+
+            <h2>fgf</h2>
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Sales Report</h4>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <div class="dropdown show">
+
+                                <a class="btn btn-outline-primary dropdown-toggle" style="color: white;" href="#"
+                                    role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                    Filter
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <a class="dropdown-item" href="/admin/sales-sort?time=1">Daily</a>
+                                    <a class="dropdown-item" href="/admin/sales-sort?time=7">Weekly</a>
+                                    <a class="dropdown-item" href="/admin/sales-sort?time=30">Monthly</a>
+                                    <a class="dropdown-item" href="/admin/sales-sort?time=365">Yearly</a>
+                                </div>
+                            </div>
+                            <a href="/admin/sales-download?time=<%=printTime%>"><button type="button"
+                                    class="btn btn-primary">download</button></a>
+                        </div>
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-dark">
+                                <thead>
+                                    <tr>
+                                        <th> No </th>
+                                        <th> Order Id </th>
+                                        <th> Oreder Date </th>
+                                        <th> Quantity</th>
+                                        <th> Amount </th>
+                                        <th> Customer</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="table">
+                                    <% if (orders.length>0) { %>
+                                        <% for (let i=0; i < orders.length; i++) { %>
+                                            <tr>
+                                                <td>
+                                                    <%=i+1%>
+                                                </td>
+                                                <td>
+                                                    <%=orders[i].uniqueId%>
+                                                </td>
+                                                <td>
+                                                    <%= typeof orders[i].deliveryDate==='string' ?
+                                                        orders[i].deliveryDate.slice(0, 10) :
+                                                        orders[i].deliveryDate.toISOString().slice(0, 10) %>
+                                                </td>
+
+                                                <td>
+                                                    <%=orders[i].products.quantity%>
+                                                </td>
+
+                                                <td>
+                                                    <%=orders[i].totalAmount%>
+                                                </td>
+                                                <td>
+                                                    <%=orders[i].userName%>
+                                                </td>
+
+
+                                            </tr>
+                                            <% } %>
+
+                                                <% } else { %>
+
+                                                    <tr>
+                                                        <td colspan="9" style="text-align: center;">Product not found
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <script>
+        function statusUpdate(id, level) {
+            $.ajax({
+                url: "/admin/statusUpdate",
+                method: "POST",
+                data: {
+                    id: id,
+                    level: level
+
+                },
+                dataType: "json",
+
+                success: function (response) {
+                    $("#table").load("/admin/orders #table");
+                    console.log(response.success);
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: 'somthing is wrong please try again',
+                        });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("not wanted");
+                    console.error("AJAX Error:", textStatus, errorThrown);
+                },
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <%- include('../partials/adminfooter') %>

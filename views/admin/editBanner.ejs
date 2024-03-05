@@ -1,63 +1,133 @@
 <%- include('../partials/adminheadder') %>
-<div class="main-panel">
-    <div class="content-wrapper">
-        <div class="col-12 grid-margin stretch-card">
-            <div class="card" style="color: white">
-                <div class="card-body">
-                    <h4 class="card-title">Edit Banner</h4>
-                    <p id="error-message" style="color: red"></p> 
-                    <form class="forms-sample" id="editBanner" method="post" action="/admin/edit-banner" enctype="multipart/form-data">
-                        <input type="file" id="imageInput" name="image" accept="image/*">
-                        <input type="hidden" value="<%=bannerData._id%>" name="id">
-                        <div class="form-group">
-                            <label for="exampleInputName1">Offer Name</label>
-                            <input value="<%=bannerData.title%>"type="text" class="form-control" name="title" placeholder="Offer Name" />
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputName1">Percentage</label>
-                            <input value="<%=bannerData.description%>" type="text" class="form-control" name="description" placeholder="Percentage" />
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">
-                            edit
-                        </button>
-                        <button type="button" onclick="window.location.href='banner'" class="btn btn-danger">
-                            cancel
-                        </button>
-                    </form>
+    <style>
+        .rounded-image-preview {
+            max-width: 200px;
+            /* Set your maximum width here */
+            max-height: 200px;
+            /* Set your maximum height here */
+            overflow: hidden;
+            /* Hide any overflow beyond the specified dimensions */
+        }
+
+        .rounded-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Maintain aspect ratio while covering the container */
+        }
+    </style>
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card" style="color: white">
+                    <div class="card-body">
+                        <h4 class="card-title">Edit Banner</h4>
+                        <p id="error-message" style="color: red"></p>
+                        <form class="" id="editBannerr" method="post" enctype="multipart/form-data">
+
+                            <div class="col-lg-3 col-md-6 rounded-image-preview">
+                                <label for="imageInput4" class="image-label">
+                                    <div class="rounded-image-preview">
+                                        <img id="imagePreview4"
+                                            src="/banner/<%=bannerData?.image%>"
+                                            alt="Preview" />
+                                    </div>
+                                    <input name="image" type="file" accept="image/*" id="imageInput4" class="imageInput"
+                                        required>
+                                </label>
+                            </div>
+                            <input type="hidden" value="<%=bannerData?._id%>" name="banerId">
+                            <div class="form-group">
+                                <label for="exampleInputName1">Title</label>
+                                <input value="<%=bannerData?.title%>" type="text" class="form-control" name="title"
+                                    placeholder="Title" />
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputName1">Discription</label>
+                                <input value="<%=bannerData?.description%>" type="text" class="form-control"
+                                    name="description" placeholder="Discription" />
+                            </div>
+
+                            <button onclick="editBannerr()" class="btn btn-primary">
+                                edit
+                            </button>
+
+                            <button type="button" onclick="window.location.href='banner'" class="btn btn-danger">
+                                cancel
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-  
 
-<!-- <script>
-    function editBanner() {
-        const formData = new FormData(document.getElementById("editBanner"));
-        const urlSearchParams = new URLSearchParams(formData);
-        fetch('edit-banner', {
-            method: 'POST',
-            body: urlSearchParams,
-            
-        })
-        .then(response => response.json())
-        .then(data => {
-           if(data.success){
-            document.location='/admin/banner';
-           }else{
-            document.getElementById("error-message").innerHTML =data.message;
-           }
-            
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function updateImagePreview(inputElement, imagePreviewId) {
+                var imagePreview = $("#" + imagePreviewId);
+                var file = inputElement.files[0];
+
+                if (file) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        imagePreview.attr("src", e.target.result);
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    
+                    imagePreview.attr("src", "/admin/assets/images/1000_F_517535712_q7f9QC9X6TQxWi6xYZZbMmw5cnLMr279.jpg");
+                }
+            }
+
+            // Event handler for image input change
+            $(".imageInput").change(function () {
+                var input = this;
+                var imagePreviewId = $(input).closest('.rounded-image-preview').find('img').attr('id');
+                updateImagePreview(input, imagePreviewId);
+            });
         });
-    }
-</script> -->
+
+
+        function editBannerr() {
+            const formData = new FormData(document.getElementById("editBannerr"));
+
+            console.log("fetch is workign")
+            fetch("/admin/edit-banner", {
+                method: "POST",
+                body: formData,
+            })
+
+                .then((response) => {
+                    if (!response.ok) {
+                        console.log(response.status)
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('ivade');
+                    console.log(data)
+                    if (data.success) {
+                        console.log('indodo');
+                        window.location.href = '/admin/banner';
+                    } else {
+                        document.getElementById("error-message").innerHTML = data.errorMessage;
+                    }
+                })
+
+                .catch((error) => {
+                    console.log(error)
+                });
+        }
+
+    </script>
 
 
 
-<%- include('../partials/adminfooter') %>
+
+    <%- include('../partials/adminfooter') %>

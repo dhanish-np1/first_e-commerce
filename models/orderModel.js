@@ -38,6 +38,7 @@ const orderSchema = new mongoose.Schema({
   },
   userId: {
     type: String,
+    ref: 'user',
     required: true,
   },
   userName: {
@@ -98,6 +99,9 @@ const orderSchema = new mongoose.Schema({
   },
   paymentId: {
     type: String
+  },
+  applied:{
+    type: String,
   },
   discount: {
     type: String

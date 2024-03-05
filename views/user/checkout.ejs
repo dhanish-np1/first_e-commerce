@@ -10,64 +10,82 @@
 
     <span class="stext-109 cl4"> chekout </span>
   </div>
+  <form id="coupon">
+    <input type="hidden" value="<%=totalAmount %>" name="amount">
+    <div class="input-group mb-3 couponInput">
+      <input type="text" class="form-control " placeholder="coupen" aria-label="Recipient's username"
+        aria-describedby="basic-addon2" name="couponCode">
+        
+      <div class="input-group-append">
+        <% if (!coupon) { %>
+          <button class="btn btn-dark" type="button" onclick="addCoupon()">add</button>
+      <% } else { %>
+        <button class="btn btn-danger" type="button" onclick="removeCoupon()">remove</button>
+      <% } %>
+      </div>
+    </div>
+  </form>
+
 </div>
+
 
 <!-- Shoping Cart -->
 <form class="bg0 p-t-75 p-b-85" id="submitOrder">
   <div class="container">
+
     <div class="row">
+
       <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-        <div
-          class="m-l-25 m-r--38 m-lr-0-xl"
-          style="display: flex; flex-wrap: wrap; gap: 20px; color: black"
-        >
+        <div class="m-l-25 m-r--38 m-lr-0-xl" style="display: flex; flex-wrap: wrap; gap: 20px; color: black">
           <a href="/load-add-address?page=/chekout">
             <div class="addAddressInChek">
               <img src="/user/icon/Untitled.png" alt="" />
-              <p
-                style="
+              <p style="
                   font-size: 30px;
                   font-weight: 700;
                   font-size: 24px;
                   line-height: 32px;
-                "
-              >
+                ">
                 Add Address
               </p>
             </div>
           </a>
-          <% for (let i = 0; i < Address?.address.length; i++) { %>
+          <% for (let i=0; i < Address?.address.length; i++) { %>
 
-          <div class="selectAddress">
-            <div class="form-check">
-              <input
-                value="<%=Address.address[i]._id%>"
-                style="border: 2px solid black"
-                class="form-check-input"
-                type="radio"
-                name="address_id"
-                id="flexRadioDefault<%=i+1%>"
-              />
-              <label class="form-check-label" for="flexRadioDefault<%=i+1%>">
-                <%=Address.address[i].fullname%>
-              </label>
+            <div class="selectAddress">
+              <div class="form-check">
+                <input value="<%=Address.address[i]._id%>" style="border: 2px solid black" class="form-check-input"
+                  type="radio" name="address_id" id="flexRadioDefault<%=i+1%>" />
+                <label class="form-check-label" for="flexRadioDefault<%=i+1%>">
+                  <%=Address.address[i].fullname%>
+                </label>
+              </div>
+
+              <p>
+                <%=Address.address[i].mobile%>
+              </p>
+              <p>
+                <%=Address.address[i].email%>
+              </p>
+              <p>
+                <%=Address.address[i].state%>
+              </p>
+              <p>
+                <%=Address.address[i].houseName%>
+              </p>
+              <p>
+                <%=Address.address[i].city%>
+              </p>
+              <p>
+                <%=Address.address[i].pin%>
+              </p>
             </div>
-
-            <p><%=Address.address[i].mobile%></p>
-            <p><%=Address.address[i].email%></p>
-            <p><%=Address.address[i].state%></p>
-            <p><%=Address.address[i].houseName%></p>
-            <p><%=Address.address[i].city%></p>
-            <p><%=Address.address[i].pin%></p>
-          </div>
-          <% } %>
+            <% } %>
         </div>
       </div>
 
       <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-        <div
-          class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm"
-        >
+        <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
           <h4 class="mtext-109 cl2 p-b-30">Total Items</h4>
 
           <div class="flex-w flex-t bor12 p-b-13">
@@ -79,6 +97,28 @@
               <span class="mtext-110 cl2"> &#x20B9; <%=cartTotal%> </span>
             </div>
           </div>
+          <% if (coupon) { %>
+            <div class="flex-w flex-t p-t-27 p-b-33">
+              <div class="size-208">
+                <span class="mtext-101 cl2"> Discount: </span>
+                <span >coupon added</span>
+              </div>
+  
+              <div class="size-209 p-t-1">
+                <span class="mtext-110 cl2"> &#x20B9; <%=cartTotal - totalAmount +coupon%> </span>
+              </div>
+            </div>
+  
+            <div class="flex-w flex-t p-t-27 p-b-33">
+              <div class="size-208">
+                <span class="mtext-101 cl2"> Total: </span>
+              </div>
+  
+              <div class="size-209 p-t-1">
+                <span class="mtext-110 cl2"> &#x20B9; <%=totalAmount - coupon%> </span>
+              </div>
+            </div>
+        <% } else { %>
           <div class="flex-w flex-t p-t-27 p-b-33">
             <div class="size-208">
               <span class="mtext-101 cl2"> Discount: </span>
@@ -95,55 +135,36 @@
             </div>
 
             <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2"> &#x20B9; <%=totalAmount%> </span>
+              <span class="mtext-110 cl2"> &#x20B9; <%=totalAmount %> </span>
             </div>
           </div>
+        <% } %>
+        
+         
           <div class="form-check">
-            <input
-              value="COD"
-              style="border: 2px solid black"
-              class="form-check-input"
-              type="radio"
-              name="PaymentMethod"
-              id="PaymentMethod1"
-              checked
-            />
+            <input value="COD" style="border: 2px solid black" class="form-check-input" type="radio"
+              name="PaymentMethod" id="PaymentMethod1" checked />
             <label class="form-check-label" for="PaymentMethod1">
               Cash On Delivery
             </label>
           </div>
           <div class="form-check">
-            <input
-              style="border: 2px solid black"
-              class="form-check-input"
-              type="radio"
-              name="PaymentMethod"
-              id="PaymentMethod2"
-              value="online_Payment"
-            />
+            <input style="border: 2px solid black" class="form-check-input" type="radio" name="PaymentMethod"
+              id="PaymentMethod2" value="online_Payment" />
             <label class="form-check-label" for="PaymentMethod2">
               Online Payment
             </label>
           </div>
           <div class="form-check">
-            <input
-              style="border: 2px solid black"
-              class="form-check-input"
-              type="radio"
-              name="PaymentMethod"
-              id="PaymentMethod3"
-              value="Wallet"
-            />
+            <input style="border: 2px solid black" class="form-check-input" type="radio" name="PaymentMethod"
+              id="PaymentMethod3" value="Wallet" />
             <label class="form-check-label" for="PaymentMethod3">
               Wallet
             </label>
           </div>
 
-          <button
-            onclick="submitForm()"
-            type="button"
-            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
-          >
+          <button onclick="submitForm()" type="button"
+            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
             PLACE ORDER
           </button>
         </div>
@@ -175,7 +196,7 @@
         console.log(data);
         if (data.success) {
           window.location.href = "/orderSuccess";
-        } else if(data.order){
+        } else if (data.order) {
           razorPayment(data.order);
         } else {
           Swal.fire({
@@ -202,9 +223,9 @@
       order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
       handler: function (response) {
         console.log(response);
-        
+
         verifyPayment(response, order);
-        
+
       },
       prefill: {
         //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
@@ -233,7 +254,7 @@
         order: order,
       },
       success: (response) => {
-        if (response.success==true) {
+        if (response.success == true) {
           window.location.href = "/orderSuccess";
         } else {
           console.log('working');
@@ -249,6 +270,84 @@
     });
   }
 </script>
+<script>
+  function addCoupon() {
+    console.log('working');
+    const formData = new FormData(document.getElementById("coupon"));
+    const urlSearchParams = new URLSearchParams(formData);
 
+    fetch("/addCoupon", {
+      method: "POST",
+      body: urlSearchParams,
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log(response.status)
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data)
+        if (data.success) {
+          location.reload()
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.message,
+          });
+        }
+      })
+
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+
+
+
+
+
+  function removeCoupon() {
+    console.log('working');
+    const formData = new FormData(document.getElementById("coupon"));
+    const urlSearchParams = new URLSearchParams(formData);
+
+    fetch("/removeCoupon", {
+      method: "POST",
+      body: urlSearchParams,
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log(response.status)
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data)
+        if (data.success) {
+          location.reload()
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: 'somthing wrong',
+          });
+        }
+      })
+
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -36,12 +36,13 @@ const loadAddProduct = async (req, res) => {
 const loadProducts = async (req, res) => {
   try {
     const products = await product.find().populate("offer");
-    console.log(products)
+    console.log(products);
     res.render("admin/product", { lay: false, products: products });
   } catch (error) {
     console.log(error);
   }
 };
+// ===================ADD PRODUCTS=========================================================
 
 const addProduct = async (req, res) => {
   try {
@@ -127,7 +128,8 @@ const addProduct = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-}; 
+};
+// ==============BLOCK PRODUCT==============================================================
 
 const blockProduct = async (req, res) => {
   try {
@@ -135,35 +137,32 @@ const blockProduct = async (req, res) => {
     const products = await product.findOne({ _id: productid });
     if (products.blocked === 0) {
       await product.updateOne({ _id: productid }, { $set: { blocked: 1 } });
-      console.log("product blocked")
+      console.log("product blocked");
       return res.json({
-        blocked:true,
+        blocked: true,
         success: true,
-        statustext:'blocked',
-        textcolor:'red',
-        btntext:'unblock',
-        btncolor:'green',
-        
+        statustext: "blocked",
+        textcolor: "red",
+        btntext: "unblock",
+        btncolor: "green",
       });
     } else {
       await product.updateOne({ _id: productid }, { $set: { blocked: 0 } });
-      console.log("product unblocked")
+      console.log("product unblocked");
       return res.json({
-        blocked:true,
+        blocked: true,
         success: true,
-        statustext:'active',
-        textcolor:'green',
-        btntext:'block',
-        btncolor:'red',
-        
+        statustext: "active",
+        textcolor: "green",
+        btntext: "block",
+        btncolor: "red",
       });
     }
   } catch (error) {
     console.log(error);
   }
 };
-
-
+// =======================LOAD EDIT PRODUCT=====================================================
 
 const loadEditProduct = async (req, res) => {
   try {
@@ -179,6 +178,7 @@ const loadEditProduct = async (req, res) => {
     console.log(error);
   }
 };
+// =====================EDIT PRODUCT=======================================================
 
 const editProduct = async (req, res) => {
   try {
@@ -272,8 +272,6 @@ const editProduct = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
-
 
 module.exports = {
   loadAddProduct,

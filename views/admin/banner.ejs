@@ -23,7 +23,7 @@
                 <% for (let i = 0; i < 3; i++) { %>
                 <tr>
                   <td><%=Banner[i].title%></td>
-                  <td><%=Banner[i].description%></td>
+                  <td><img src="/banner/<%=Banner[i].image%>" alt=""></td>
                   <td>
                     <% if (Banner[i].status==true) { %>
                     <p id="status<%=Banner[i]._id%>" style="color: green">
@@ -81,6 +81,10 @@
       </div>
     </div>
   </div>
+
+
+
+  
 </div>
 
 <script>

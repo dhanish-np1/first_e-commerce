@@ -1,10 +1,9 @@
 const { render } = require("ejs");
 const product = require("../models/productmodel");
-const category = require("../models/catogerymodel");
 const user = require("../models/usermodel");
 const cart = require("../models/cartModel");
 
-//==================================RESEND OTP===================================================
+//==================================LOAD CART===================================================
 
 const loadCart = async (req, res) => {
   try {
@@ -12,7 +11,8 @@ const loadCart = async (req, res) => {
     const cartData = await cart
       .findOne({ userId: userId })
       .populate("products.productId");
-    let totalAmount = 0;
+    console.log(cartData);
+    var totalAmount = 0;
     if (cartData) {
       let cartTotal = cartData.products.reduce((total, product) => {
         return total + product.productId.price * product.count;
@@ -20,7 +20,7 @@ const loadCart = async (req, res) => {
       // calculating discount amout
       for (let i = 0; i < cartData.products.length; i++) {
         let cartItem = cartData.products[i];
-        
+
         if (
           cartItem.productId.discount !== null &&
           cartItem.productId.discount !== undefined
@@ -31,7 +31,6 @@ const loadCart = async (req, res) => {
           let productprice = cartItem.productId.price;
           totalAmount += cartItem.count * productprice;
         }
-        
       }
       console.log(totalAmount);
       const productCount = cartData?.products.length;
@@ -47,9 +46,9 @@ const loadCart = async (req, res) => {
     } else {
       res.render("user/shoping-cart", {
         lay: true,
-        cartData:null,
-        productCount:0,
-        cartTotal:0,
+        cartData: null,
+        productCount: 0,
+        cartTotal: 0,
         name: req.session.name,
       });
     }
@@ -58,6 +57,8 @@ const loadCart = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// ====================== ADD TO CART======================================================
 
 const addToCart = async (req, res) => {
   try {
@@ -127,6 +128,8 @@ const addToCart = async (req, res) => {
   }
 };
 
+// =================REMOVE CART ITEMS===========================================================
+
 const removeCart = async (req, res) => {
   try {
     const userId = req.session.user_id;
@@ -146,6 +149,7 @@ const removeCart = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// ====================== CART QUANTITY UPDATION======================================================
 
 const quantityUpdate = async (req, res) => {
   try {

@@ -1,364 +1,382 @@
 <%- include('../partials/adminheadder') %>
 
-<div class="content-wrapper">
-  <div class="page-header">
-    <h2>fgf</h2>
-  </div>
-  <div class="row">
-    <div class="col-lg-12 grid-margin stretch-card">
-      <div class="card">
-        <div class="card-body">
-          <h2 style="text-align: center; color: azure">Category</h2>
-          <!-- bootstrap moddal -->
-          <!-- Button trigger modal -->
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-toggle="modal"
-            data-target="#exampleModalCenter"
-          >
-            Add new
-          </button>
+  <div class="content-wrapper">
+    <div class="page-header">
+      <h2>fgf</h2>
+    </div>
+    <div class="row">
+      <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <h2 style="text-align: center; color: azure">Category</h2>
+            <!-- bootstrap moddal -->
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+              Add new
+            </button>
 
-          <!-- Modal -->
+            <!-- Modal -->
 
-          <div
-            class="modal fade"
-            id="exampleModalCenter"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="exampleModalCenterTitle"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div
-                style="background-color: rgb(70, 63, 63)"
-                class="modal-content"
-              >
-                <div class="modal-header">
-                  <h5
-                    class="modal-title"
-                    id="exampleModalLongTitle"
-                    style="color: aliceblue"
-                  >
-                    Add new category
-                  </h5>
-                  <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <form id="addCategory">
-                    <label for="category" style="color: aliceblue">name</label>
-                    <br />
-                    <input
-                      type="text"
-                      name="newcategory"
-                      style="border-radius: 3%"
-                    />
-                    <p id="error-message" style="color: red"></p>
-                    <div class="modal-footer">
-                      <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal"
-                      >
-                        Close
-                      </button>
-                      <button
-                        type="button"
-                        onclick="addCategory()"
-                        class="btn btn-primary"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </form>
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+              aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div style="background-color: rgb(70, 63, 63)" class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle" style="color: aliceblue">
+                      Add new category
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="addCategory">
+                      <label for="category" style="color: aliceblue">name</label>
+                      <br />
+                      <input type="text" name="newcategory" style="border-radius: 3%" />
+                      <p id="error-message" style="color: red"></p>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                          Close
+                        </button>
+                        <button type="button" onclick="addCategory()" class="btn btn-primary">
+                          Add
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <input
-            type="text"
-            id="myInput"
-            onkeyup="myFunction()"
-            placeholder="Search"
-            style="border-radius: 7px; margin-left: 5px; padding-left: 5px"
-          />
-          <h2></h2>
-          <div class="table-responsive">
-            <table class="table table-striped table-dark" id="myTable">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Category</th>
-                  <th>status</th>
-                  <th>action</th>
-                  <th>update</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (cats.length>0) { %> <% for (let i=0; i < cats.length;
-                i++) { %>
-                <tr>
-                  <td><%= i+1 %></td>
-                  <td><%= cats[i].name %></td>
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search"
+              style="border-radius: 7px; margin-left: 5px; padding-left: 5px" />
+            <h2></h2>
+            <div class="table-responsive">
+              <table class="table table-striped table-dark" id="myTable">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Category</th>
+                    <th>status</th>
+                    <th>action</th>
+                    <th>offer</th>
+                    <th>offer action</th>
+                    <th>update</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (cats.length>0) { %> <% for (let i=0; i < cats.length; i++) { %>
+                      <tr>
+                        <td>
+                          <%= i+1 %>
+                        </td>
+                        <td>
+                          <%= cats[i].name %>
+                        </td>
 
-                  <% if (cats[i].blocked!==1) { %>
-                  <td>
-                    <p id="status<%=cats[i]._id%>" style="color: green">
-                      active
-                    </p>
-                  </td>
-                  <% } else { %>
-                  <td>
-                    <p id="status<%=cats[i]._id%>" style="color: red">
-                      blocked
-                    </p>
-                  </td>
-                  <% } %> <% if (cats[i].blocked===0) { %>
-                  <td>
-                    <button
-                      style="background-color: red"
-                      type="button"
-                      id="block<%=cats[i]._id%>"
-                      onclick="blockCat('<%=cats[i]._id%>')"
-                      class="btn btn-danger"
-                    >
-                      Block
-                    </button>
-                  </td>
-                  <% } else { %>
-                  <td>
-                    <button
-                      style="background-color: green"
-                      type="button"
-                      id="block<%=cats[i]._id%>"
-                      onclick="blockCat('<%=cats[i]._id%>')"
-                      class="btn btn-success"
-                    >
-                      unblock
-                    </button>
-                  </td>
-                  <% } %>
+                        <% if (cats[i].blocked!==1) { %>
+                          <td>
+                            <p id="status<%=cats[i]._id%>" style="color: green">
+                              active
+                            </p>
+                          </td>
+                          <% } else { %>
+                            <td>
+                              <p id="status<%=cats[i]._id%>" style="color: red">
+                                blocked
+                              </p>
+                            </td>
+                            <% } %>
+                              <% if (cats[i].blocked===0) { %>
+                                <td>
+                                  <button style="background-color: red" type="button" id="block<%=cats[i]._id%>"
+                                    onclick="blockCat('<%=cats[i]._id%>')" class="btn btn-danger">
+                                    Block
+                                  </button>
+                                </td>
+                                <% } else { %>
+                                  <td>
+                                    <button style="background-color: green" type="button" id="block<%=cats[i]._id%>"
+                                      onclick="blockCat('<%=cats[i]._id%>')" class="btn btn-success">
+                                      unblock
+                                    </button>
+                                  </td>
+                                  <% } %>
+                                    <!-- offer -->
+                                    <td>
+                                      <% if (cats[i].offer==null) { %> 0% <% } else { %>
+                                          <%=cats[i].offer.percentages%>% <% } %>
+                                    </td>
+                                    <td>
+                                      <% if (cats[i].offer==null) { %>
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                          data-target="#offer<%=cats[i]._id%>">
+                                          add offer
+                                        </button>
 
-                  <td>
-                    <!-- Button trigger modal -->
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-toggle="modal"
-                      data-target="#exampleModal<%=cats[i]._id%>"
-                    >
-                      Edit
-                    </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="offer<%=cats[i]._id%>" tabindex="-1" role="dialog"
+                                          aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                          <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLongTitle">add catogery offer</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                  aria-label="Close">
+                                                  <span aria-hidden="true">&times;</span>
+                                                </button>
+                                              </div>
+                                              <div class="modal-body">
+                                                <form action="categery-Offer" method="post" id="addOffer<%=cats[i]._id%>" >
+                                                  <% for (let i = 0; i < offer.length; i++) { %>
+                                                    <div class="form-check">
+                                                      <input
+                                                        class="form-check-input"
+                                                        type="radio"
+                                                        name="offerId"
+                                                        value="<%=offer[i]._id%>"
+                                                        id="flexRadioDefault1<%=i%>"
+                                                      />
+                                                     
+                                                      <label style="color: white;" class="form-check-label" for="flexRadioDefault1<%=i%>">
+                                                        <%=offer[i].name%> = <%=offer[i].percentages%>%
+                                                      </label>
+                                                    </div>
+                                                    <% } %>
+                                                    <input type="hidden" name="categeryId" value="<%=cats[i]._id%>">
+                                                </form>
+                                              </div>
+                                              <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                  data-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-primary" onclick="submitModal('<%=cats[i]._id%>')">Add offer</button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <% } else { %>
+                                          <button type="button" class="btn btn-danger" onclick="removeOffer('<%=cats[i]._id%>','<%=cats[i].name%>')">remove</button>
+                                          <% } %>
 
-                    <!-- Modal -->
-                    <div
-                      class="modal fade"
-                      id="exampleModal<%=cats[i]._id%>"
-                      tabindex="-1"
-                      role="dialog"
-                      aria-labelledby="exampleModal<%=cats[i]._id%>"
-                      aria-hidden="true"
-                    >
-                      <div class="modal-dialog" role="document">
-                        <div
-                          class="modal-content"
-                          style="background-color: rgb(70, 63, 63)"
-                        >
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">
-                              give new name 
-                            </h5>
-                            <button
-                              type="button"
-                              class="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <form id="editcat<%= cats[i]._id %>">
-                              <label for="catogery" style="color: white"
-                                >Enter new name</label
-                              >
+                                    </td>
+                                    <td>
+                                      <!-- Button trigger modal -->
+                                      <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#exampleModal<%=cats[i]._id%>">
+                                        Edit
+                                      </button>
 
-                              <input
-                                type="hidden"
-                                name="_id"
-                                value="<%= cats[i]._id %>"
-                              />
-                              <input
-                                type="text"
-                                name="newname"
-                                style="height: 30px; border-radius: 10"
-                              />
-                              <p id="error-message2<%= cats[i]._id %>" style="color: red"></p>
-                              <br />
-                              <h1></h1>
-                              <button
-                                type="button"
-                                onclick="editCategory('<%= cats[i]._id %>')"
-                                class="btn btn-primary"
-                              >
-                                Submit
-                              </button>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="exampleModal<%=cats[i]._id%>" tabindex="-1"
+                                        role="dialog" aria-labelledby="exampleModal<%=cats[i]._id%>" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                          <div class="modal-content" style="background-color: rgb(70, 63, 63)">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="exampleModalLabel">
+                                                give new name
+                                              </h5>
+                                              <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                              </button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form id="editcat<%= cats[i]._id %>">
+                                                <label for="catogery" style="color: white">Enter new name</label>
 
-                <% } %> <% } else { %>
+                                                <input type="hidden" name="_id" value="<%= cats[i]._id %>" />
+                                                <input type="text" name="newname"
+                                                  style="height: 30px; border-radius: 10" />
+                                                <p id="error-message2<%= cats[i]._id %>" style="color: red"></p>
+                                                <br />
+                                                <h1></h1>
+                                                <button type="button" onclick="editCategory('<%= cats[i]._id %>')"
+                                                  class="btn btn-primary">
+                                                  Submit
+                                                </button>
+                                              </form>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+                      </tr>
 
-                <tr>
-                  <td colspan="5" style="text-align: center">
-                    users not found
-                  </td>
-                </tr>
-                <% } %>
-              </tbody>
-            </table>
+                      <% } %>
+                        <% } else { %>
+
+                          <tr>
+                            <td colspan="7" style="text-align: center">
+                              categery not found
+                            </td>
+                          </tr>
+                          <% } %>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<%- include('../partials/adminfooter') %>
-<script>
-  function addCategory() {
-    console.log("add category");
-    const formData = new FormData(document.getElementById("addCategory"));
-    const urlSearchParams = new URLSearchParams(formData);
+  <%- include('../partials/adminfooter') %>
+    <script>
+      function addCategory() {
+        console.log("add category");
+        const formData = new FormData(document.getElementById("addCategory"));
+        const urlSearchParams = new URLSearchParams(formData);
 
-    fetch("/admin/addcategory", {
-      method: "POST",
-      body: urlSearchParams,
-      headers: {
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.log(response.status);
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          window.location.href = "/admin/catogery";
-        } else {
-          document.getElementById(`error-message`).innerHTML =
-            data.errorMessage;
-        }
-      })
+        fetch("/admin/addcategory", {
+          method: "POST",
+          body: urlSearchParams,
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.log(response.status);
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              window.location.href = "/admin/catogery";
+            } else {
+              document.getElementById(`error-message`).innerHTML =
+                data.errorMessage;
+            }
+          })
 
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+          .catch((error) => {
+            console.log(error);
+          });
+      }
 
-  function editCategory(id) {
-    console.log("add category");
-    const formData = new FormData(document.getElementById(`editcat${id}`));
-    const urlSearchParams = new URLSearchParams(formData);
+      function editCategory(id) {
+        console.log("add category");
+        const formData = new FormData(document.getElementById(`editcat${id}`));
+        const urlSearchParams = new URLSearchParams(formData);
 
-    fetch("/admin/editcat", {
-      method: "POST",
-      body: urlSearchParams,
-      headers: {
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.log(response.status);
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          window.location.href = "/admin/catogery";
-        } else {
-          document.getElementById(`error-message2${id}`).innerHTML =
-            data.errorMessage;
-        }
-      })
+        fetch("/admin/editcat", {
+          method: "POST",
+          body: urlSearchParams,
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.log(response.status);
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              window.location.href = "/admin/catogery";
+            } else {
+              document.getElementById(`error-message2${id}`).innerHTML =
+                data.errorMessage;
+            }
+          })
 
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+          .catch((error) => {
+            console.log(error);
+          });
+      }
 
-  function blockCat(userId) {
-    const statusCell = document.getElementById(`status${userId}`);
-    const btn = document.getElementById(`block${userId}`);
-    fetch(`/admin/blockcat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to block user with ID ${userId}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.blocked) {
-          statusCell.innerHTML = data.statustext;
-          statusCell.style.color = data.textcolor;
-          btn.innerHTML = data.btntext;
-          btn.style.backgroundColor = data.btncolor;
-          btn.style.border = 0;
-        } else {
-          statusCell.innerHTML = data.statustext;
-          statusCell.style.color = data.textcolor;
-          btn.innerHTML = data.btntext;
-          btn.style.backgroundColor = data.btncolor;
-        }
-      })
+      function blockCat(userId) {
+        const statusCell = document.getElementById(`status${userId}`);
+        const btn = document.getElementById(`block${userId}`);
+        fetch(`/admin/blockcat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Failed to block user with ID ${userId}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.blocked) {
+              statusCell.innerHTML = data.statustext;
+              statusCell.style.color = data.textcolor;
+              btn.innerHTML = data.btntext;
+              btn.style.backgroundColor = data.btncolor;
+              btn.style.border = 0;
+            } else {
+              statusCell.innerHTML = data.statustext;
+              statusCell.style.color = data.textcolor;
+              btn.innerHTML = data.btntext;
+              btn.style.backgroundColor = data.btncolor;
+            }
+          })
 
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+          .catch((error) => {
+            console.error(error);
+          });
+      }
 
-  function myFunction() {
-    // Declare variables
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("myInput");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
+      function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
 
-    // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[1];
-      if (td) {
-        txtValue = td.textContent || td.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1];
+          if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
         }
       }
-    }
-  }
-</script>
+    </script>
+    <script>
+      function submitModal(categeryId) {
+        document.getElementById(`addOffer${categeryId}`).submit();
+      }
+    </script>
+    <script>
+      function removeOffer(categeryId,name) {
+        fetch(`/admin/rm-categery-Offer`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ categeryId,name }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Failed to block user with ID ${proId}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              location.reload();
+            }
+          })
+    
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+    
+    
+    </script>

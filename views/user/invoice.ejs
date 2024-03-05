@@ -126,14 +126,14 @@
         </div>
         <div class="col-xs-4">
           <div class="media">
-            <div class="media-left">
-              <img src="/user/assets/images/demos/demo-2/logo.png" alt="Molla Logo" width="120" height="60">
-            </div>
+            <!-- <div class="media-left">
+              <img src="" alt="" width="120" height="60">
+            </div> -->
             <ul class="media-body list-unstyled">
-              <li><strong>Keyzen Private Limited</strong></li>
-              <li>Furniture Shope</li>
+              <li><strong>COZASTORE Private Limited</strong></li>
+              <li>TOY Shope</li>
               <li>New Address, City</li>
-              <li>info@keyzenprivatelimited.com</li>
+              <li>info@cozaprivatelimited.com</li>
             </ul>            
           </div>
         </div>
@@ -152,13 +152,13 @@
                 <dt>Order ID :</dt>
                 <dd> <%= order.uniqueId %></dd>
                 <dt>Name :</dt>
-                <dd> <%= user.name %></dd>
+                <dd> <%= users.fullname %></dd>
                 <dt>Phone :</dt>
-                <dd><%= user.mobile %></dd>
+                <dd><%= users.number %></dd>
                 <dt>Email :</dt>
-                <dd><%= user.email %></dd>
+                <dd><%= users.email %></dd>
                 <dt>Date :</dt>
-                <dd> <%= order.date.toLocaleDateString('en-US', { year: 'numeric' , month: 'short' , day: '2-digit'
+                <dd> <%= order.deliveryDate.toLocaleDateString('en-US', { year: 'numeric' , month: 'short' , day: '2-digit'
                 }).replace(/\//g, '-' ) %></dd>
                 <dt>Tax NO :</dt>
                 <dd class="mono">123456789</dd>
@@ -175,19 +175,19 @@
             <div class="panel-body">
               <dl class="dl-horizontal">
                 <dt>Name</dt>
-                <dd><%= order.address[0].name %></dd>
+                <dd><%= order.address.Name %></dd>
                 <dt>Phone</dt>
-                <dd><%= order.address[0].mobile %></dd>
+                <dd><%= order.address.phone %></dd>
                 <dt>Email</dt>
-                <dd><%= order.address[0].email %></dd>
+                <dd><%= order.address.email %></dd>
                 <dt>House</dt>
-                <dd><%= order.address[0].houseName %></dd>
+                <dd><%= order.address.houseNo %></dd>
                 <dt>City</dt>
-                <dd><%= order.address[0].city %></dd>
+                <dd><%= order.address.city %></dd>
                 <dt>State</dt>
-                <dd class="mono"><%= order.address[0].state %></dd>
+                <dd class="mono"><%= order.address.state %></dd>
                 <dt>Pincode</dt>
-                <dd><%= order.address[0].pin %></dd>
+                <dd><%= order.address.pin %></dd>
             </div>
           </div>
         </div>
@@ -203,8 +203,8 @@
               <th class="text-center " >Item / Details</th>
               <th class="text-center colfix">Quantity</th>
               <th class="text-center colfix">Price</th>
-              <th class="text-center colfix">Discount</th>
-              <th class="text-center colfix">Total</th>
+              
+              
             </tr>
           </thead>
           <tbody>
@@ -222,30 +222,26 @@
                   <%= product.name %>
                 </td>
                 <td class="text-right">
-                  <span class="mono"><%= products[i].count %></span>
+                  <span class="mono"><%= products[i].quantity %></span>
                 </td>
                 <td class="text-right">
-                  <span class="mono"> ₹<%= products[i].productId.price * products[i].count %></span>
+                  <span class="mono"> ₹<%= products[i].price * products[i].quantity %></span>
                 </td>
-                <td class="text-right">
-                  <span class="mono">₹<%= products[i].productId.discount * products[i].count %></span>
-                </td>
-                <td class="text-right">
-                  <strong class="">₹<%= products[i].productId.price * products[i].count - products[i].productId.discount * products[i].count %></strong>
-                  <small class="text-muted mono"></small>
-                </td>
+                
+                
               </tr>
           
-              <% grandTotal += (products[i].productId.price * products[i].count - products[i].productId.discount * products[i].count); %>
+              <% grandTotal += (products[i].productId.price * products[i].quantity - products[i].productId.discount * products[i].quantity); %>
             <% } %>
           
             <!-- Display Grand Total -->
             <tr>
-              <td colspan="5" class="text-right">
-                <strong>Grand Total</strong>
+              
+              <td colspan="3" class="text-right">
+                <strong>discounted Total</strong>
               </td>
               <td class="text-right">
-                <strong class="">₹<%= grandTotal %></strong>
+                <strong class="">₹<%=  order.totalAmount %></strong>
                 <small class="text-muted mono"></small>
               </td>
             </tr>
@@ -278,9 +274,9 @@
               <h3 class="panel-title">Compny Deleals</h3>
             </div>
             <div class="panel-body">
-              <li><strong>Keyzen Private Limited</strong></li>
-              <li>Furniture Development</li>
-              <li>info@keyzenprivatelimited.com</li>
+              <li><strong>COZASTORE Private Limited</strong></li>
+              <li>Toys Development</li>
+              <li>info@cozaprivatelimited.com</li>
             </div>
           </div>
         </div>
@@ -293,7 +289,7 @@
    We hope to see you again soon
       
   
-      <strong>~KEYZEN~</strong>
+      <strong>~COZASTORE~</strong>
     </div>
   </div>
   
