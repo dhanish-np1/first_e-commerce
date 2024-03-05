@@ -95,7 +95,7 @@
 
         function editBannerr() {
             const formData = new FormData(document.getElementById("editBannerr"));
-
+            
             console.log("fetch is workign")
             fetch("/admin/edit-banner", {
                 method: "POST",
@@ -109,20 +109,18 @@
                     }
                     return response.json();
                 })
-                .then((data) => {
-                    console.log('ivade');
-                    console.log(data)
-                    if (data.success) {
-                        console.log('indodo');
+                .then((response) => {
+                    if (response.success==true) {
                         window.location.href = '/admin/banner';
                     } else {
-                        document.getElementById("error-message").innerHTML = data.errorMessage;
+                        document.getElementById("error-message").innerHTML = response.errorMessage;
                     }
                 })
 
                 .catch((error) => {
                     console.log(error)
                 });
+                
         }
 
     </script>
