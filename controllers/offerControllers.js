@@ -11,8 +11,20 @@ const Offer = require("../models/offerModel");
 // ======================LOAD OFFERS======================================================
 const loadOffers = async (req, res) => {
   try {
-    const offers = await Offer.find();
-    res.render("admin/offers", { lay: false, offers });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+
+    const totalCount = await Offer.countDocuments();
+    const totalPages = Math.ceil(totalCount / perPage);
+    const offers = await Offer.find()
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+    res.render("admin/offers", {
+      lay: false,
+      offers,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });

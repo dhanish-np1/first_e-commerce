@@ -4,9 +4,15 @@ const coupons = require("../models/couponModel");
 // ========================LOAD COUPON PAGE====================================================
 const loadCoupens = async (req, res) => {
   try {
-    const coupon = await coupons.find({});
-    console.log(coupon);
-    res.render("admin/coupons", { lay: false, coupon });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    const totalCount = await coupons.countDocuments();
+    const totalPages = Math.ceil(totalCount / perPage);
+    
+    const coupon = await coupons.find({}).skip((page - 1) * perPage)
+    .limit(perPage);
+    res.render("admin/coupons", { lay: false, coupon,totalPages,
+      currentPage: page, });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -198,7 +204,10 @@ const applyCoupon = async (req, res) => {
         message: "this coupon is expired",
       });
     }
+    console.log(coupon.criteriaAmount);
+    console.log(req.body.amount);
     if (coupon.criteriaAmount > req.body.amount) {
+      console.log('workign');
       return res.json({
         success: false,
         message: `minimum ${coupon.criteriaAmount}Rs needed for apply this coupon `,

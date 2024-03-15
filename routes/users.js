@@ -90,6 +90,8 @@ userRouter.post(
   auth.isLogin,
   profileController.removeAddress
 );
+userRouter.get("/edit-address", auth.isLogin, profileController.loadEditAddress);
+userRouter.post("/edit-address", auth.isLogin, profileController.editAddress);
 //==================================cart====================================================
 userRouter.get("/cart", auth.isLogin, cartController.loadCart);
 userRouter.post("/addToCart", cartController.addToCart);

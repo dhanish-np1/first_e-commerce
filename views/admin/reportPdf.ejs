@@ -26,21 +26,24 @@
             <th>Date</th>
             <th>Product</th>
             <th>Quantity</th>
+            <th>before offer</th>
             <th>Price</th>
             <th>Total</th>
           </tr>
         </thead>
         <tbody>
+          <% let total , grandTotal=0%>
           <% if (orderData && orderData.length > 0) { %>
-            <% let grandTotal = 0; %>
+            
             <% orderData.forEach(order => { %>
               <% order.products.forEach(product => { %>
-                <% let total = product.quantity * product.price; %>
+                <% total = product.quantity * product.afterOffer; %>
                 <tr>
                   <td><%= order.deliveryDate.toLocaleString('en-US') %></td>
                   <td><%= product.productId.name %></td>
                   <td><%= product.quantity %></td>
-                  <td>₹<%= product.productId.price.toFixed(2) %></td>
+                  <td>₹<%= product.price.toFixed(2) %></td>
+                  <td>₹<%= product.afterOffer.toFixed(2) %></td>
                   <td>₹<%= total.toFixed(2) %></td>
                 </tr>
                 <% grandTotal += total; %>
@@ -48,7 +51,7 @@
             <% }); %>
             <tfoot>
               <tr>
-                <td colspan="4" class="text-right">Grand Total:</td>
+                <td colspan="5" class="text-right">Grand Total:</td>
                 <td>₹<%= grandTotal.toFixed(2) %></td>
               </tr>
             </tfoot>
@@ -59,7 +62,60 @@
           <% } %>
         </tbody>
       </table>
-      <h5>COZASTORE Ltd.</h5>
+      <br>
+      <div style="display: flex; gap: 30px;">
+        <table class="table table-bordered col-8">
+          <thead>
+            <tr>
+              <td>No</td>
+              <td> top products</td>
+              <td>quantity</td>
+            </tr>
+          </thead>
+          <tbody>
+            <%var i=1%>
+            <% topProducts.forEach(function(name) { %>
+              
+              <tr>
+                <td><%=i%></td>
+                <td><%=name.productName%></td>
+                <td><%=name.totalQuantitySold%></td>
+              </tr>
+              <%i=i+1%>
+            <% }); %>
+            
+          </tbody>
+        </table>
+        <div>
+          <table class="table table-bordered col-5">
+            <thead>
+              <tr>
+                <td>No</td>
+                <td> top products</td>
+                <td>quantity</td>
+              </tr>
+            </thead>
+            <tbody>
+              <%var i=1%>
+              <% topCategery.forEach(function(name) { %>
+                
+                <tr>
+                  <td><%=i%></td>
+                  <td><%=name._id%></td>
+                  <td><%=name.totalQuantity%></td>
+                </tr>
+                <%i=i+1%>
+              <% }); %>
+              
+            </tbody>
+          </table>
+        </div>
+        
+      </div>
+      
+      <h5>Total revenue =₹ <%=grandTotal%></h5>
+      
+      <h5 style="margin-top: 30px;">ToyMania Ltd.</h5>
     </div>
   </div>
 </div>

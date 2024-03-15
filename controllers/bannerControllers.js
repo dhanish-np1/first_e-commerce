@@ -44,7 +44,7 @@ const editBanner = async (req, res) => {
         }
       );
       console.log("hai image");
-      return res.json({ success: true });
+      res.redirect('/admin/banner')
     } else {
       await banner.updateOne(
         { _id: req.body.banerId },
@@ -56,7 +56,7 @@ const editBanner = async (req, res) => {
         }
       );
       console.log("hai");
-      return res.json({ success: true });
+      return res.json({ success: false });
     }
   } catch (error) {
     console.log(error.message);

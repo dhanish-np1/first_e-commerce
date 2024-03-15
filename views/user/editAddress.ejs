@@ -1,0 +1,95 @@
+<section class="bg0 p-t-20 p-b-70">
+    <div class="container" style="display: flex; justify-content: center">
+      <form id="addAddress" class="col-md-6">
+        <input type="text" hidden name="page" value="<%=page%>">
+        <h2 style="color: black; padding-bottom: 15px">Add new address</h2>
+        <label class="addressLabel" for="">Full Name</label>
+        <input class="addressInput" name="address_id" type="hidden" value="<%=data[0].address._id%>"/>
+        <input class="addressInput" name="name" type="text" value="<%=data[0].address.fullname%>"/>
+        <label class="addressLabel" >Phone no</label>
+        <input class="addressInput" name="number" type="number" value="<%=data[0].address.mobile%>"/>
+        <label class="addressLabel" for="">Email</label>
+        <input class="addressInput" name="email" type="text" value="<%=data[0].address.email%>"/>
+        <label class="addressLabel" for="">State</label>
+        <select id="cars" name="state" class="addressInput" name="state">
+          <option value="andhra_pradesh">Andhra Pradesh</option>
+          <option value="arunachal_pradesh">Arunachal Pradesh</option>
+          <option value="assam">Assam</option>
+          <option value="bihar">Bihar</option>
+          <option value="chhattisgarh">Chhattisgarh</option>
+          <option value="goa">Goa</option>
+          <option value="gujarat">Gujarat</option>
+          <option value="haryana">Haryana</option>
+          <option value="himachal_pradesh">Himachal Pradesh</option>
+          <option value="jammu_kashmir">Jammu and Kashmir</option>
+          <option value="jharkhand">Jharkhand</option>
+          <option value="karnataka">Karnataka</option>
+          <option value="kerala">Kerala</option>
+          <option value="madhya_pradesh">Madhya Pradesh</option>
+          <option value="maharashtra">Maharashtra</option>
+          <option value="manipur">Manipur</option>
+          <option value="meghalaya">Meghalaya</option>
+          <option value="mizoram">Mizoram</option>
+          <option value="nagaland">Nagaland</option>
+          <option value="odisha">Odisha</option>
+          <option value="punjab">Punjab</option>
+          <option value="rajasthan">Rajasthan</option>
+          <option value="sikkim">Sikkim</option>
+          <option value="tamil_nadu">Tamil Nadu</option>
+          <option value="telangana">Telangana</option>
+          <option value="tripura">Tripura</option>
+          <option value="uttar_pradesh">Uttar Pradesh</option>
+          <option value="uttarakhand">Uttarakhand</option>
+          <option value="west_bengal">West Bengal</option>
+        </select>
+        <label class="addressLabel" for="">House no</label>
+        <input class="addressInput" name="houseNum" type="text" value="<%=data[0].address.houseName%>"/>
+        <label class="addressLabel" for="">City</label>
+        <input class="addressInput" name="city" type="text" value="<%=data[0].address.city%>"/>
+        <label class="addressLabel" for="">Pincode</label>
+        <input class="addressInput" name="pincode" type="number" value="<%=data[0].address.pin%>"/>
+        <p id="error-message" style="color: red;"></p>
+        <a href="/profile"><button style="margin-top: 15px" type="button" class="btn btn-secondary">
+          Cancel
+        </button></a>
+        <button style="margin-top: 15px" type="button" class="btn btn-warning" onclick="submitForm()">
+          edit
+        </button>
+      </form>
+    </div>
+  </section>
+  
+  
+  
+      <script>
+      function submitForm() {
+        const formData = new FormData(document.getElementById("addAddress"));
+        const urlSearchParams = new URLSearchParams(formData);
+       
+        fetch("/edit-address", {
+          method: "POST",
+          body: urlSearchParams,
+          
+        })
+        .then((response) => {
+          if (!response.ok) {
+            console.log(response.status)
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+          .then((data) => {
+            console.log(data);
+              if (data.success) {
+              window.location.href = '/add-address';
+            } else {
+              document.getElementById("error-message").innerHTML =data.errorMessage;
+            }
+          })
+    
+          .catch((error) => {
+            console.log(error)
+          });
+      }
+    </script>
+  

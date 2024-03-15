@@ -7,6 +7,7 @@ const cart = require("../models/cartModel");
 
 const loadCart = async (req, res) => {
   try {
+    let cartTotal=0
     const userId = req.session.user_id;
     const cartData = await cart
       .findOne({ userId: userId })
@@ -14,7 +15,7 @@ const loadCart = async (req, res) => {
     console.log(cartData);
     var totalAmount = 0;
     if (cartData) {
-      let cartTotal = cartData.products.reduce((total, product) => {
+       cartTotal = cartData.products.reduce((total, product) => {
         return total + product.productId.price * product.count;
       }, 0);
       // calculating discount amout
@@ -49,6 +50,7 @@ const loadCart = async (req, res) => {
         cartData: null,
         productCount: 0,
         cartTotal: 0,
+        totalAmount:0,
         name: req.session.name,
       });
     }

@@ -1,17 +1,17 @@
 <section class="bg0 p-t-20 p-b-70">
   <div class="container" style="display: flex; gap: 10px; flex-wrap: wrap">
     <a href="/load-add-address?page=/profile">
-    <div class="addAddress">
-      <img src="/user/icon/Untitled.png" alt="" />
-      <p style="
+      <div class="addAddress">
+        <img src="/user/icon/Untitled.png" alt="" />
+        <p style="
             font-size: 30px;
             font-weight: 700;
             font-size: 24px;
             line-height: 32px;
           ">
-        Add Address
-      </p>
-    </div>
+          Add Address
+        </p>
+      </div>
     </a>
     <% for (let i=0; i < Address?.address.length; i++) { %>
       <div class="showAddress">
@@ -32,7 +32,9 @@
         </p>
         <p class="addressField">Pin: <%=Address.address[i].pin%>
         </p>
-        <button type="button" style="color:red;" onclick="removeAddress('<%=Address._id%>','<%=Address.address[i]._id%>')">Remove</button>
+        <div style="display: flex; justify-content: center; gap: 15px;"><button type="button" style="color:red;"
+            onclick="removeAddress('<%=Address._id%>','<%=Address.address[i]._id%>')">Remove</button> </div>
+
       </div>
       <% } %>
 
@@ -40,7 +42,7 @@
 </section>
 
 <script>
-  function removeAddress(Id,addId) {
+  function removeAddress(Id, addId) {
     console.log(Id);
     console.log(addId);
     Swal.fire({
@@ -61,8 +63,8 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              _id:Id,
-              addressId:addId
+              _id: Id,
+              addressId: addId
             }),
           });
 

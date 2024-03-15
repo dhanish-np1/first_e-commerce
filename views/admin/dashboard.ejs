@@ -2,6 +2,7 @@
 
   <!-- Add this script tag to include Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
 
 
@@ -143,7 +144,15 @@
           </div>
         </div> -->
 
+        <div class="col-lg-12 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Monthly Revenue</h4>
 
+              <canvas id="myChart" style="width:100%;"></canvas>
+            </div>
+          </div>
+        </div>
 
 
 
@@ -225,7 +234,9 @@
               <% topProducts.forEach(function(item) { %>
                 <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
                   <div class="text-md-center text-xl-left">
-                    <h6 class="mb-1" style="color: white;"><%=item.productName%></h6>
+                    <h6 class="mb-1" style="color: white;">
+                      <%=item.productName%>
+                    </h6>
                   </div>
                   <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
                     <h6 style="color: white;" class="font-weight-bold mb-0">
@@ -233,8 +244,8 @@
                     </h6>
                   </div>
                 </div>
-            <% }); %>
-            
+                <% }); %>
+
             </div>
           </div>
         </div>
@@ -246,43 +257,27 @@
           <div class="card">
             <div class="card-body">
               <h4 class="card-title" style="color: white;">Top selling categery</h4>
-              <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded ">
-                <div class="text-md-center text-xl-left">
-                  <h6 class="mb-1" style="color: white;">Anime</h6>
+              <% topCategery.forEach(function(item) { %>
+                <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
+                  <div class="text-md-center text-xl-left">
+                    <h6 class="mb-1" style="color: white;">
+                      <%=item._id%>
+                    </h6>
+                  </div>
+                  <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
+                    <h6 style="color: white;" class="font-weight-bold mb-0">
+                      <%=item.totalQuantity %>
+                    </h6>
+                  </div>
                 </div>
-                <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-                  <h6 style="color: white;" class="font-weight-bold mb-0">
-                    
-                  </h6>
-                </div>
-              </div>
-              <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
-                <div class="text-md-center text-xl-left">
-                  <h6 class="mb-1" style="color: white;">Marvel</h6>
-                </div>
-                <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-                  <h6 class="font-weight-bold mb-0" style="color: white;">
-                    
-                  </h6>
-                </div>
-              </div>
-              <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
-                <div class="text-md-center text-xl-left" style="color: white;">
-                  <h6 class="mb-1" style="color: white;">Dc</h6>
-                </div>
-                <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-                  <h6 class="font-weight-bold mb-0" style="color: white;">
-                    
-                  </h6>
-                </div>
-              </div>
+                <% }); %>
             </div>
           </div>
         </div>
       </div>
 
 
-      <input type="text" id="cod" value="<%= codCount %>" hidden>
+      <!-- <input type="text" id="cod" value="<%= codCount %>" hidden>
       <input type="text" id="wallet" value="<%= walletCount %>" hidden>
       <input type="text" id="online" value="<%= onlinePaymentCount %>" hidden>
 
@@ -298,7 +293,7 @@
       <input type="text" id="sep" value="<%= data[8] %>" hidden>
       <input type="text" id="oct" value="<%= data[9] %>" hidden>
       <input type="text" id="nov" value="<%= data[10] %>" hidden>
-      <input type="text" id="dec" value="<%= data[11] %>" hidden>
+      <input type="text" id="dec" value="<%= data[11] %>" hidden> -->
 
 
 
@@ -456,9 +451,33 @@
 
         // Call the fetchWeeklySalesData function to initially load data
         fetchWeeklySalesData();
+      }); -->
+
+
+    </script>
+    <script>
+      const xValues = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const yValues = <%= JSON.stringify(monthlySales) %>;
+      const barColors = ["red", "green", "blue", "orange", "brown", "purple", "pink", "cyan", "magenta", "yellow", "lightblue", "lime"];
+
+
+      new Chart("myChart", {
+        type: "bar",
+        data: {
+          labels: xValues,
+          datasets: [{
+            backgroundColor: barColors,
+            data: yValues
+          }]
+        },
+        options: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: "sales"
+          }
+        }
       });
-
-
-    </script> -->
+    </script>
 
     <%- include('../partials/adminfooter') %>

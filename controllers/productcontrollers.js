@@ -2,7 +2,8 @@ const { render } = require("ejs");
 const product = require("../models/productmodel");
 const category = require("../models/catogerymodel");
 const Sharp = require("sharp");
-
+const path = require("path");
+const error500 = path.join(__dirname, "views", "error.html");
 //============================LOAD ADD PRODUCT PAGE=============================
 
 const loadProductDetails = async (req, res) => {
@@ -16,7 +17,7 @@ const loadProductDetails = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).sendFile(error500);
   }
 };
 
@@ -35,9 +36,21 @@ const loadAddProduct = async (req, res) => {
 
 const loadProducts = async (req, res) => {
   try {
-    const products = await product.find().populate("offer");
-    console.log(products);
-    res.render("admin/product", { lay: false, products: products });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    const totalCount = await product.countDocuments();
+    const totalPages = Math.ceil(totalCount / perPage);
+    const products = await product
+      .find()
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .populate("offer");
+    res.render("admin/product", {
+      lay: false,
+      products: products,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
     console.log(error);
   }

@@ -38,9 +38,14 @@
                                     <a class="dropdown-item" href="/admin/sales-sort?time=7">Weekly</a>
                                     <a class="dropdown-item" href="/admin/sales-sort?time=30">Monthly</a>
                                     <a class="dropdown-item" href="/admin/sales-sort?time=365">Yearly</a>
+                                    <button type="button" class="btn btn" data-toggle="modal"
+                                        data-target="#exampleModalCenter">
+                                        custom
+                                    </button>
+
                                 </div>
                             </div>
-                            <a href="/admin/sales-download?time=<%=printTime%>"><button type="button"
+                            <a href="/admin/sales-download?time=<%=printTime%>&to=<%=todate%>"><button type="button"
                                     class="btn btn-primary">download</button></a>
                         </div>
                         </p>
@@ -103,41 +108,71 @@
 
             </div>
         </div>
+        <div style="display: flex; justify-content: center;">
+            <nav aria-label="Page navigation example">
+              <ul class="pagination">
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                </li>
+                <% for (let i=1; i <=totalPages; i++) { %>
+                  <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>">
+                      <%= i %>
+                    </a>
+                  </li>
+                  <% } %>
+                    <li class="page-item">
+                      <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                    </li>
+              </ul>
+            </nav>
+          </div>
 
 
     </div>
 
+    <!-- modal for custom report -->
 
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Custom sales Report</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="date" style="width: 100%;" id="formdate" required>
+                    <br>
+                    <hr>
+                    <input type="date" style="width: 100%;" id="todate" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="customReport()" class="btn btn-primary">submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
-        function statusUpdate(id, level) {
-            $.ajax({
-                url: "/admin/statusUpdate",
-                method: "POST",
-                data: {
-                    id: id,
-                    level: level
+        function customReport() {
+            console.log('workign');
+            const from = document.getElementById('formdate').value;
+            const to = document.getElementById('todate').value;
 
-                },
-                dataType: "json",
+            console.log("why");
+            const url = `/admin/sales-sort?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
 
-                success: function (response) {
-                    $("#table").load("/admin/orders #table");
-                    console.log(response.success);
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: 'somthing is wrong please try again',
-                        });
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log("not wanted");
-                    console.error("AJAX Error:", textStatus, errorThrown);
-                },
-            });
+            // Navigate to the URL
+            window.location.href = url;
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

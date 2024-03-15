@@ -5,6 +5,10 @@ const { render } = require("ejs");
 const nodemailer = require("nodemailer");
 const category = require("../models/catogerymodel");
 const banner = require("../models/bannerModel");
+const dotenv = require("dotenv");
+const path = require("path");
+const error500 = path.join(__dirname, "views", "error.html");
+dotenv.config();
 var otp;
 
 // =====================otp expire==================
@@ -40,7 +44,8 @@ const securePassword = async (password) => {
     const passwordhash = await bcrypt.hash(password, 10);
     return passwordhash;
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 
@@ -51,7 +56,8 @@ const loadSign_up = async (req, res) => {
     req.session.errorMessage = "";
     res.render("user/usersignup", { lay: false, errorMessage: message });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 
@@ -205,7 +211,7 @@ const insertUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 
@@ -226,7 +232,8 @@ const loadHome = async (req, res) => {
       banners,
     });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 
@@ -236,7 +243,8 @@ const loadLogin = async (req, res) => {
   try {
     res.render("user/userlogin", { lay: false });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 // =====================loadotp==================
@@ -245,7 +253,8 @@ const loadVarify = async (req, res) => {
   try {
     res.render("user/otp", { lay: false });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 // =====================send varify mail==================
@@ -259,8 +268,8 @@ const sendVerifyMail = async (name, email, otp) => {
       secure: false,
       requireTLS: true,
       auth: {
-        user: "dhanishnp6@gmail.com",
-        pass: "uxnd beho hvwz ysmt",
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
@@ -278,6 +287,7 @@ const sendVerifyMail = async (name, email, otp) => {
     console.log("Email has been sent to", email, info.response);
   } catch (error) {
     console.error("Error in sendVerifyMail:", error);
+    
   }
 };
 
@@ -324,6 +334,7 @@ const login = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 // ====================VARIFY OTP========================================================
@@ -359,7 +370,8 @@ const otpVarify = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+   res.status(500).sendFile(error500)
   }
 };
 // ====================USER LOGOUT========================================================
@@ -372,7 +384,7 @@ const userLogout = async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 
@@ -390,7 +402,7 @@ const resendOtp = async (req, res) => {
     sendVerifyMail(req.session.name, req.session.email, otp);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 
@@ -400,7 +412,7 @@ const loadForgotPassword = async (req, res) => {
     res.render("user/forgotPassword", { lay: true, name: req.session.name });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 // =========================FORGOT PASSWORD===================================================
@@ -428,7 +440,7 @@ const forgotPassword = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 // ==============LOAD FORGOT OTP==============================================================
@@ -437,7 +449,8 @@ const loadOtpForgot = async (req, res) => {
   try {
     res.render("user/forgotPassOtp", { lay: false });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+    res.status(500).sendFile(error500)
   }
 };
 // ====================SEND OTP========================================================
@@ -470,6 +483,7 @@ const sendForgotOtp = async (email, otp) => {
     console.log("Email has been sent to", email, info.response);
   } catch (error) {
     console.error("Error in sendVerifyMail:", error);
+
   }
 };
 // ==============================RESEND OTP==============================================
@@ -486,7 +500,7 @@ const resendForgotOtp = async (req, res) => {
     sendForgotOtp(req.session.email, otp);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 // ================VARIFY FORGOT OTP============================================================
@@ -501,7 +515,7 @@ const varifyForgotOtp = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 // ===============LOAD RESET PASSWORD=============================================================
@@ -511,7 +525,7 @@ const loadResetPassword = async (req, res) => {
     res.render("user/resetPassword", { lay: false, name: req.session.name });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 // =====================RESET PASSWORD=======================================================
@@ -568,7 +582,7 @@ const ResetPassword = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+   res.status(500).sendFile(error500)
   }
 };
 module.exports = {

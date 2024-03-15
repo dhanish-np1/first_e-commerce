@@ -6,6 +6,8 @@ const category = require("../models/catogerymodel");
 const order = require("../models/orderModel");
 const product = require("../models/productmodel");
 const Offer = require("../models/offerModel");
+const path = require("path");
+const error500 = path.join(__dirname, "views", "error.html");
 
 // =======================LOAD DASHBOARD=====================================================
 
@@ -145,6 +147,7 @@ const loadDashBoard = async (req, res) => {
     ]);
     // finding to selling products
     const topProducts = await order.aggregate([
+      { $match: { status: "delivered" } },
       { $unwind: "$products" },
       {
         $group: {
@@ -158,42 +161,45 @@ const loadDashBoard = async (req, res) => {
       { $limit: 10 },
     ]);
     const topCategery = await order.aggregate([
+      { $match: { status: "delivered" } },
       { $unwind: "$products" },
-      // Perform a lookup to get the category information for each product
-      {
-        $lookup: {
-          from: "product", // Name of the collection containing products
-          localField: "products.productId",
-          foreignField: "_id",
-          as: "product",
-        },
-      },
-      // Unwind the resulting product array
-      { $unwind: "$product" },
-      // Perform another lookup to get the category information for each product
-      {
-        $lookup: {
-          from: "category", // Name of the collection containing categories
-          localField: "product.categoryId",
-          foreignField: "_id",
-          as: "category",
-        },
-      },
-      // Unwind the resulting category array
-      { $unwind: "$category" },
-      // Group by category and count the number of orders for each category
+
       {
         $group: {
-          _id: "$category._id",
-          categoryName: { $first: "$category.name" },
-          orderCount: { $sum: 1 },
+          _id: "$products.categery",
+          totalQuantity: { $sum: "$products.quantity" },
         },
       },
-      // Sort the results by order count in descending order
-      { $sort: { orderCount: -1 } },
+
+      { $sort: { totalQuantity: -1 } },
+
+      { $limit: 10 },
     ]);
-    console.log(topProducts);
-    console.log(topCategery);
+    const salesData = await order.aggregate([
+      {
+        $match: { status: "delivered" }, // Filter only delivered orders
+      },
+      {
+        $group: {
+          _id: { $month: "$deliveryDate" }, // Group by month
+          totalSales: { $sum: "$totalAmount" }, // Calculate total sales for each month
+        },
+      },
+      {
+        $project: {
+          month: "$_id",
+          totalSales: 1,
+          _id: 0,
+        },
+      },
+    ]);
+
+    const monthlySales = Array.from({ length: 12 }, (_, i) => {
+      const monthData = salesData.find((data) => data.month === i + 1);
+      return monthData ? monthData.totalSales : 0;
+    });
+    console.log(monthlySales);
+
     totalCod = totalCod.length > 0 ? totalCod[0].total1 : 0;
     totalOnline = totalOnline.length > 0 ? totalOnline[0].total2 : 0;
     totalWallet = totalWallet.length > 0 ? totalWallet[0].total3 : 0;
@@ -215,9 +221,12 @@ const loadDashBoard = async (req, res) => {
       totalCod,
       totalWallet,
       topProducts,
+      topCategery,
+      monthlySales,
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // =====================LOAD ADMIN SIDE=======================================================
@@ -226,33 +235,61 @@ const loadAdmin = async (req, res) => {
   try {
     res.render("admin/adminlogin", { lay: false, noteq: "" });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ============================= LOAD CATEGERY===============================================
 
 const loadCatogery = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+
+    const totalCount = await user.countDocuments();
+    const totalPages = Math.ceil(totalCount / perPage);
+
     const offer = await Offer.find({ blocked: 0 });
-    const categories = await category.find().populate("offer");
+    const categories = await category
+      .find()
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .populate("offer");
     res.render("admin/category", {
       lay: false,
       cats: categories,
       same: "",
       offer,
+      totalPages,
+      currentPage: page,
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ==========================LOAD USER DATA==================================================
 
 const loadUsers = async (req, res) => {
   try {
-    const userdata = await user.find();
-    res.render("admin/users", { lay: false, users: userdata });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+
+    const totalCount = await user.countDocuments();
+    const totalPages = Math.ceil(totalCount / perPage);
+    const userdata = await user
+      .find()
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+    res.render("admin/users", {
+      lay: false,
+      users: userdata,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 
@@ -278,7 +315,8 @@ const adminLogin = async (req, res) => {
       res.render("admin/adminlogin", { lay: false, noteq: unequal });
     }
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ============================ADD CATEGERY================================================
@@ -314,8 +352,8 @@ const addCategory = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ============================BLOCK CATEGERY================================================
@@ -362,7 +400,8 @@ const blockCat = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ========================EDIT CATEGERY====================================================
@@ -395,8 +434,8 @@ const editCat = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ==================== BLOCK USER IN ADMIN SIDE========================================================
@@ -430,7 +469,8 @@ const blockUser = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 
@@ -442,16 +482,31 @@ const adminLogout = async (req, res) => {
     res.redirect("/admin");
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).sendFile(error500);
   }
 };
 // ================================LOAD ORDER PAGE============================================
 const loadOrder = async (req, res) => {
   try {
-    const orders = await order.find();
-    res.render("admin/order", { lay: false, orders });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+
+    const totalCount = await order.countDocuments();
+    const totalPages = Math.ceil(totalCount / perPage);
+    const orders = await order
+      .find()
+      .sort({ deliveryDate: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+    res.render("admin/order", {
+      lay: false,
+      orders,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ====================================== VIEW ORDER DETAILS IN ADMIN SIDE======================================
@@ -462,18 +517,41 @@ const viewOrder = async (req, res) => {
     console.log(orders);
     res.render("admin/viewOrder", { lay: false, orders });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ======================================SORT SALES REPORT======================================
 const salesSort = async (req, res) => {
   try {
-    const printTime = req.query.time;
-    const duration = parseInt(req.query.time);
+    let printTime, todate;
     let startDate, endDate;
-    const currentDate = new Date();
-    startDate = new Date(currentDate - duration * 24 * 60 * 60 * 1000);
-    endDate = currentDate;
+    if (req.query.time) {
+      printTime = req.query.time;
+      const duration = parseInt(req.query.time);
+      const currentDate = new Date();
+      startDate = new Date(currentDate - duration * 24 * 60 * 60 * 1000);
+      endDate = currentDate;
+    } else {
+      startDate = new Date(req.query.from);
+      endDate = new Date(req.query.to);
+      printTime = req.query.from;
+      todate = req.query.to;
+    }
+    const page = parseInt(req.query.page) || 1; 
+    const perPage = 10;
+    const totalCount = await order.aggregate([
+      {
+        $unwind: "$products",
+      },
+      {
+        $match: {
+          status: "delivered",
+          deliveryDate: { $gte: startDate, $lt: endDate },
+        },
+      },
+    ]).count("totalOrders");
+    const totalPages = Math.ceil(totalCount / perPage);
     const orders = await order.aggregate([
       {
         $unwind: "$products",
@@ -504,45 +582,59 @@ const salesSort = async (req, res) => {
       },
     ]);
 
-    console.log(orders);
-    res.render("admin/salesReport", { lay: false, orders, printTime });
+    res.render("admin/salesReport", {
+      lay: false,
+      orders,
+      printTime,
+      todate,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ======================================DOWNLOAD SALES REPORT======================================
 const downloadReport = async (req, res) => {
   try {
+    console.log("woking");
     let startDate, endDate;
     let duration;
-    duration = parseInt(req.query.time);
-    const currentDate = new Date();
-    switch (duration) {
-      case 1:
-      case 7:
-        startDate = new Date(currentDate - duration * 24 * 60 * 60 * 1000);
-        endDate = currentDate;
-        break;
-      case 30:
-        startDate = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth() - 1,
-          currentDate.getDate()
-        );
-        endDate = currentDate;
-        break;
-      case 365:
-        startDate = new Date(
-          currentDate.getFullYear() - 1,
-          currentDate.getMonth(),
-          currentDate.getDate()
-        );
-        endDate = currentDate;
-        break;
-      default:
-        startDate = new Date(currentDate - duration * 24 * 60 * 60 * 1000);
-        endDate = currentDate;
+    if (req.query.to) {
+      startDate = new Date(req.query.time);
+      endDate = new Date(req.query.to);
+    } else {
+      duration = parseInt(req.query.time);
+      const currentDate = new Date();
+      switch (duration) {
+        case 1:
+        case 7:
+          startDate = new Date(currentDate - duration * 24 * 60 * 60 * 1000);
+          endDate = currentDate;
+          break;
+        case 30:
+          startDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() - 1,
+            currentDate.getDate()
+          );
+          endDate = currentDate;
+          break;
+        case 365:
+          startDate = new Date(
+            currentDate.getFullYear() - 1,
+            currentDate.getMonth(),
+            currentDate.getDate()
+          );
+          endDate = currentDate;
+          break;
+        default:
+          startDate = new Date(currentDate - duration * 24 * 60 * 60 * 1000);
+          endDate = currentDate;
+      }
     }
+
     const orderData = await order
       .find({
         status: "delivered",
@@ -572,12 +664,67 @@ const downloadReport = async (req, res) => {
       default:
         dateLabel = "Custom";
     }
-    console.log(orderData);
-    console.log(orderData.length);
+    const topProducts = await order.aggregate([
+      {
+        $match: {
+          status: "delivered",
+          deliveryDate: {
+            $gte: startDate,
+            $lt: endDate,
+            $ne: null,
+            $type: "date",
+          },
+        },
+      },
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.productId",
+          totalQuantitySold: { $sum: "$products.quantity" },
+          productName: { $first: "$products.product_name" },
+          image: { $first: "$products.image" },
+        },
+      },
+      { $sort: { totalQuantitySold: -1 } },
+      { $limit: 10 },
+    ]);
+    const topCategery = await order.aggregate([
+      {
+        $match: {
+          status: "delivered",
+          deliveryDate: {
+            $gte: startDate,
+            $lt: endDate,
+            $ne: null,
+            $type: "date",
+          },
+        },
+      },
+      { $unwind: "$products" },
 
-    res.render("admin/reportPdf", { lay: false, date: dateLabel, orderData });
+      {
+        $group: {
+          _id: "$products.categery",
+          totalQuantity: { $sum: "$products.quantity" },
+        },
+      },
+
+      { $sort: { totalQuantity: -1 } },
+
+      { $limit: 10 },
+    ]);
+    console.log(topProducts);
+    console.log(topCategery);
+    res.render("admin/reportPdf", {
+      lay: false,
+      date: dateLabel,
+      orderData,
+      topProducts,
+      topCategery,
+    });
   } catch (error) {
-    console.log(error.massage);
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 // ======================================DASHBOARD WEEKLY CHART======================================
@@ -616,8 +763,8 @@ const weeklySalesDataEndpoint = async (req, res) => {
     // Send the formatted data as JSON response
     res.json({ labels, salesData });
   } catch (error) {
-    console.error("Error fetching weekly sales data:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.log(error.message);
+    res.status(500).sendFile(error500);
   }
 };
 
@@ -643,7 +790,7 @@ const chartFilterWeek = async (req, res) => {
 
     res.json([totalCodWeek, totalOnlineWeek, totalWalletWeek]);
   } catch (error) {
-    console.error(error.message);
+    console.log(error.message);
     res.status(500).sendFile(error500);
   }
 };
@@ -672,7 +819,7 @@ const chartFilterMonth = async (req, res) => {
     res.json([totalCodMonth, totalOnlineMonth, totalWalletMonth]);
   } catch (error) {
     console.log(error.message);
-    res.render("500");
+    res.status(500).sendFile(error500);
   }
 };
 // ======================================DASHBOARD CHART YEAR FILTER======================================
@@ -698,7 +845,7 @@ const chartFilterYear = async (req, res) => {
     res.json([totalCodYear, totalOnlineYear, totalWalletYear]);
   } catch (error) {
     console.log(error.message);
-    res.render("500");
+    res.status(500).sendFile(error500);
   }
 };
 module.exports = {

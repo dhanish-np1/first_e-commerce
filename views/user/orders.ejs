@@ -32,7 +32,7 @@
               <div>
                 <p style="color: black">
                   price <br />
-                  <%=orders[i].products[j].price%>
+                  <%=orders[i].products[j].afterOffer%>
                 </p>
               </div>
               <div>
@@ -44,7 +44,7 @@
               <div>
                 <p style="color: black">
                   total <br />
-                  <%=orders[i].products[j].price * orders[i].products[j].quantity %>
+                  <%=orders[i].products[j].afterOffer * orders[i].products[j].quantity %>
                 </p>
               </div>
               <div>
@@ -59,7 +59,7 @@
             <% } %>
               <div style="display: flex; gap: 10px">
                 <!-- <button type="button" class="btn btn-primary">view details</button> -->
-                <% if (orders[i].status=='placed' && orders[i].paymentMethod=='COD') { %>
+                <% if (orders[i].status!=='pending' && orders[i].status!=='delivered' && orders[i].status!=='Returned' && orders[i].status!=='cancelled') { %>
                   <button type="button" class="btn btn-danger" onclick="cancelOrders('<%=orders[i]._id%>')">
                     Cancel order
                   </button>

@@ -7,9 +7,10 @@
     <style>
         .wallet-container {
             background-color: rgb(255, 255, 255);
-            padding-top: 100px;
-            padding-bottom: 100px;
+            padding-top: 50px;
+            padding-bottom: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
@@ -37,14 +38,59 @@
             margin-bottom: 20px;
         }
     </style>
+    <style>
+        .transaction-display {
+            width: 100%;
+            max-width: 600px; /* Adjust as needed */
+            margin: 0 auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            overflow-y: auto; /* Enable vertical scrollbar when needed */
+            max-height: 400px; /* Set a maximum height and enable scrolling */
+        }
+
+        /* Style for individual transaction items */
+        .transaction-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+        }
+        .transaction-display {
+    /* Other styles */
+    overflow-y: auto; /* Enable vertical scrollbar when needed */
+    max-height: 400px; /* Set a maximum height and enable scrolling */
+}
+    </style>
 </head>
 <body>
     <div class="wallet-container">
         <div class="wallet-card">
-            <h2 class="wallet-title">My Wallet</h2>
-            <p class="balance">$500.00</p>
+            <h2 class="wallet-title">My Wallet balance</h2>
+            <p class="balance">Rs:&#8377;<%=userData.wallet%></p>
             <!-- You can customize the content of the wallet card as needed -->
         </div>
+        
+        
+    </div>
+    <div class="transaction-display" style="margin-bottom: 25px;">
+        <!-- Sample transactions, replace with actual data -->
+        <% walletHistory.forEach(function(transaction) { %>
+            <div class="transaction-item" style="color: black;">
+                <p>Amount:Rs: &#8377; <%=transaction.amount%> </p>
+                <p>Date: <%= transaction.date.toISOString().slice(0, 10) %></p>
+                <p>Description: <%=transaction.reason%></p>
+                <% if (transaction.reason=='no reason') { %>
+                    <p style="color: green;"> Amount Credited</p>
+                <% } else { %>
+                    <p style="color: red;"> Amount Debited</p>
+                <% } %>
+            </div>
+        <% }); %>
+        
     </div>
 </body>
 </html>

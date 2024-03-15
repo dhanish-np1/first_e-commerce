@@ -130,10 +130,10 @@
               <img src="" alt="" width="120" height="60">
             </div> -->
             <ul class="media-body list-unstyled">
-              <li><strong>COZASTORE Private Limited</strong></li>
+              <li><strong>ToyMania Private Limited</strong></li>
               <li>TOY Shope</li>
               <li>New Address, City</li>
-              <li>info@cozaprivatelimited.com</li>
+              <li>info@toymanialimited.com</li>
             </ul>            
           </div>
         </div>
@@ -225,13 +225,13 @@
                   <span class="mono"><%= products[i].quantity %></span>
                 </td>
                 <td class="text-right">
-                  <span class="mono"> ₹<%= products[i].price * products[i].quantity %></span>
+                  <span class="mono"> ₹<%= products[i].afterOffer * products[i].quantity %></span>
                 </td>
                 
                 
               </tr>
           
-              <% grandTotal += (products[i].productId.price * products[i].quantity - products[i].productId.discount * products[i].quantity); %>
+              <% grandTotal += (products[i].afterOffer * products[i].quantity - products[i].productId.discount * products[i].quantity); %>
             <% } %>
           
             <!-- Display Grand Total -->
@@ -274,9 +274,9 @@
               <h3 class="panel-title">Compny Deleals</h3>
             </div>
             <div class="panel-body">
-              <li><strong>COZASTORE Private Limited</strong></li>
+              <li><strong>ToyMania Private Limited</strong></li>
               <li>Toys Development</li>
-              <li>info@cozaprivatelimited.com</li>
+              <li>info@toymaniaprivatelimited.com</li>
             </div>
           </div>
         </div>
@@ -289,7 +289,7 @@
    We hope to see you again soon
       
   
-      <strong>~COZASTORE~</strong>
+      <strong>~ToyMania~</strong>
     </div>
   </div>
   

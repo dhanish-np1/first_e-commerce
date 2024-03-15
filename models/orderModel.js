@@ -56,9 +56,16 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             default: 1,
         },
+        categery: {
+          type: String,
+          default: 1,
+      },
         price:{
           type:Number,
           required: true,
+        },
+        afterOffer:{
+          type:Number
         },
         product_name: {
             type: String,  // Add this field to store the product name
@@ -102,6 +109,9 @@ const orderSchema = new mongoose.Schema({
   },
   applied:{
     type: String,
+  },
+  couponAmount:{
+    type:Number,
   },
   discount: {
     type: String

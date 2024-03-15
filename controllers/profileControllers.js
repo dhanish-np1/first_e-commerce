@@ -7,6 +7,7 @@ const order = require("../models/orderModel");
 const coupons = require("../models/couponModel");
 const bcrypt = require("bcrypt");
 const moment = require("moment");
+const ObjectId = require("mongodb").ObjectId;
 
 // =========================== LOAD PROFILE=================================================
 
@@ -322,7 +323,9 @@ const addAddress = async (req, res) => {
 
 const loadOrders = async (req, res) => {
   try {
-    const orders = await order.find({ userId: req.session.user_id });
+    const orders = await order
+      .find({ userId: req.session.user_id })
+      .sort({ deliveryDate: -1 });
     res.render("user/orders", { lay: true, name: req.session.name, orders });
   } catch (error) {
     console.log(error.message);
@@ -372,7 +375,13 @@ const loadCoupons = async (req, res) => {
 const loadWallet = async (req, res) => {
   try {
     const userData = await user.findOne({ _id: req.session.user_id });
-    res.render("user/wallet", { lay: true, name: req.session.name, userData });
+    const walletHistory = userData.walletHistory;
+    res.render("user/wallet", {
+      lay: true,
+      name: req.session.name,
+      userData,
+      walletHistory,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -397,6 +406,133 @@ const loadOrderDetail = async (req, res) => {
   }
 };
 
+// ========================LOAD Edit Address====================================================
+const loadEditAddress = async (req, res) => {
+  try {
+    const Id = req.query.id;
+    const addressId = new ObjectId(Id);
+    console.log(Id);
+    console.log(addressId);
+    const data = await address.aggregate([
+      {
+        $match: {
+          "address._id": addressId,
+        },
+      },
+      {
+        $unwind: "$address",
+      },
+      {
+        $match: {
+          "address._id": addressId,
+        },
+      },
+    ]);
+
+    console.log(data);
+    res.render("user/editAddress", {
+      lay: true,
+      name: req.session.name,
+      page: req.query.page,
+      data,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// ========================Edit Address====================================================
+const editAddress = async (req, res) => {
+  try {
+    console.log("working");
+    console.log(req.body);
+    const page = req.body.page;
+    const name = req.body.name;
+    const email = req.body.email;
+    const number = req.body.number;
+    const state = req.body.state;
+    const pincode = req.body.pincode;
+    const houseNum = req.body.houseNum;
+    const city = req.body.city;
+    if (name.length <= 2) {
+      return res.json({
+        success: false,
+        errorMessage: "name should be more than 2 charectors",
+      });
+    } else {
+      if (
+        email.trim() === "" ||
+        number.trim() === "" ||
+        state.trim() === "" ||
+        pincode.trim() === "" ||
+        houseNum.trim() === "" ||
+        city.trim() === ""
+      ) {
+        return res.json({
+          success: false,
+          errorMessage: "Please fill the all field",
+        });
+      } else {
+        const emailPattern = /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+        if (!emailPattern.test(email)) {
+          return res.json({
+            success: false,
+            errorMessage: "Please give a valid email",
+          });
+        } else {
+          const mobilePattern = /^\d{10}$/;
+          if (!mobilePattern.test(number) || number === "0000000000") {
+            return res.json({
+              success: false,
+              errorMessage: "please give a valid phone number",
+            });
+          } else {
+            if (pincode.length < 6 || pincode.length > 6) {
+              return res.json({
+                success: false,
+                errorMessage: "please enter a valid pincode",
+              });
+            } else {
+              const data = await address.aggregate([
+                {
+                  $match: {
+                    "address._id": new ObjectId(req.body.address_id)
+                  }
+                },
+                {
+                  $unwind: "$address"
+                },
+                {
+                  $match: {
+                    "address._id": new ObjectId(req.body.address_id)
+                  }
+                }
+              ]);
+              console.log(data);
+              return 0;
+              if (updated) {
+                return res.json({
+                  success: true,
+                  errorMessage: "",
+                  page,
+                });
+              } else {
+                return res.json({
+                  success: false,
+                  errorMessage: "some thing went wrong please try again later",
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   loadProfile,
   loadUserDetailes,
@@ -411,4 +547,6 @@ module.exports = {
   loadCoupons,
   loadWallet,
   loadOrderDetail,
+  loadEditAddress,
+  editAddress,
 };
